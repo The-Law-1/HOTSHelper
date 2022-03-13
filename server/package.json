@@ -1,0 +1,15 @@
+{
+  "name": "hotshelper",
+  "version": "1.0.0",
+  "description": "server side for hots helper",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/nodemon index.js"
+  },
+  "author": "Gabriel",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^2.0.15",
+    "puppeteer": "^13.4.1"
+  }
+}
