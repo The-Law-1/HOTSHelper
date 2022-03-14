@@ -8,7 +8,7 @@ import {
     Req,
     Request,
 } from "@nestjs/common";
-import { Cat } from "./cat";
+import { Cat } from "./cat.dto";
 import { CatsService } from "./cats.service";
 
 @Controller("cats")
