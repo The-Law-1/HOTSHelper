@@ -22,8 +22,8 @@ export class HeroesController {
                               @Query("minSampleSize") minSampleSize ? : number
                               ): Promise<Array<Hero>> {
 
-        let bestHeroes = await this.heroesService.getBestHeroesForMap(name, minSampleSize);
+        let heroChoices = await this.heroesService.getHeroChoicesForMap(name, minSampleSize);
 
-        return (bestHeroes);
+        return (heroChoices);
     }
 }

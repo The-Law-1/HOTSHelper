@@ -6,19 +6,19 @@ export class Hero {
 
     // ? ban rate/total games banned ?
 
-    winRate : number;
+    winRate ? : number = 0;
 
-    winRatePerMap : { [key: string] : number }
+    winRatePerMap ? : { [key: string] : number } = null
 
-    winRatePerDuo : { [key : string] : number}
+    winRatePerDuo ? : { [key : string] : number} = null
 
-    winRatePerMatchup : { [key : string] : number}
+    winRatePerMatchup ? : { [key : string] : number} = null
 
     constructor(name: string,
                 gamesPlayed : number,
-                winRatePerMap : { [key: string] : number },
-                winRatePerDuo : { [key: string] : number },
-                winRatePerMatchup : { [key: string] : number }) {
+                winRatePerMap : { [key: string] : number } = null,
+                winRatePerDuo : { [key: string] : number } = null,
+                winRatePerMatchup : { [key: string] : number } = null) {
         this.name = name;
         this.gamesPlayed = gamesPlayed;
         this.winRatePerMap = winRatePerMap;
