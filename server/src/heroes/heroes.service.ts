@@ -3,15 +3,13 @@ import { Injectable } from "@nestjs/common";
 import { NOTFOUND } from "dns";
 import { Hero } from "./hero.dto";
 
-enum Sorting
-{
+enum Sorting {
     Ascending,
-    Descending
+    Descending,
 }
 
 @Injectable()
 export class HeroesService {
-
     async test(): Promise<any> {
         const browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
@@ -30,6 +28,19 @@ export class HeroesService {
 
         // other actions...
         await browser.close();
+    }
+
+    async getSynergyWinrates(
+        allyTeam: Array<Hero>,
+        minSampleSize: number = 30,
+        selectionRange: number = 8
+    ): Promise<Array<Hero>> {
+        let allHeroStats = [];
+        let heroChoices = [];
+
+        // todo copy hero choices, get average, filter
+
+        return heroChoices;
     }
 
     async getHeroChoicesForMap(
@@ -92,7 +103,7 @@ export class HeroesService {
                         heroName,
                         parseInt(sampleSize),
                         parseFloat(winRate),
-                        { [mapName] : winRate }
+                        { [mapName]: winRate }
                     )
                 );
 
@@ -106,8 +117,16 @@ export class HeroesService {
 
         console.log("Filtering heroes");
 
-        let bestHeroes = this.filterHeroesWinrate(allHeroStats, Sorting.Ascending, selectionRange);
-        let worstHeroes = this.filterHeroesWinrate(allHeroStats, Sorting.Descending, selectionRange);
+        let bestHeroes = this.filterHeroesWinrate(
+            allHeroStats,
+            Sorting.Ascending,
+            selectionRange
+        );
+        let worstHeroes = this.filterHeroesWinrate(
+            allHeroStats,
+            Sorting.Descending,
+            selectionRange
+        );
 
         console.log("Concatting arrays");
         heroChoices = heroChoices.concat(bestHeroes, worstHeroes);
@@ -116,8 +135,11 @@ export class HeroesService {
         return heroChoices;
     }
 
-    filterHeroesWinrate(heroSamples : Array<Hero>, sort : Sorting, maxSelection : number) : Array<Hero>
-    {
+    filterHeroesWinrate(
+        heroSamples: Array<Hero>,
+        sort: Sorting,
+        maxSelection: number
+    ): Array<Hero> {
         let result = [];
         let currentComp = 0;
         let currentHero = null;
@@ -126,8 +148,12 @@ export class HeroesService {
             currentComp = sort === Sorting.Ascending ? 0 : 100;
 
             // ! pretty inefficient but if you got ideas I'm listening
-            heroSamples.forEach(hero => {
-                if (result.findIndex((resHero : Hero) => resHero.name === hero.name) !== -1)
+            heroSamples.forEach((hero) => {
+                if (
+                    result.findIndex(
+                        (resHero: Hero) => resHero.name === hero.name
+                    ) !== -1
+                )
                     return;
 
                 // ! gotta be a better way to do this
@@ -149,6 +175,6 @@ export class HeroesService {
             }
         }
 
-        return (result);
+        return result;
     }
 }

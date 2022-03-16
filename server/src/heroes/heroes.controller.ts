@@ -10,7 +10,7 @@ export class HeroesController {
     // * it doesn't seem to matter if you write the endpoint with or without the parameters
     // * prbably bc of query
     // * keeping it for clarity though
-    @Get("/map/:name/:minSampleSize?")
+    @Get("/map/:name/:minSampleSize?/:selectionRange?")
     // * need to do this so swagger still shows the param
     @ApiQuery({
         name: "minSampleSize",
@@ -18,13 +18,21 @@ export class HeroesController {
         description: "Minimum sample size, optional",
         required: false,
     })
+    @ApiQuery({
+        name: "selectionRange",
+        type: Number,
+        description: "Hero selection range, optional",
+        required: false,
+    })
     async getBestHeroesForMap(
         @Query("name") name: string,
-        @Query("minSampleSize") minSampleSize?: number
+        @Query("minSampleSize") minSampleSize?: number,
+        @Query("selectionRange") selectionRange?: number
     ): Promise<Array<Hero>> {
         let heroChoices = await this.heroesService.getHeroChoicesForMap(
             name,
-            minSampleSize
+            minSampleSize,
+            selectionRange
         );
 
         return heroChoices;
