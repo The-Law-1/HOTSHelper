@@ -16,14 +16,17 @@ export class HeroesController {
         name: "minSampleSize",
         type: Number,
         description: "Minimum sample size, optional",
-        required: false
+        required: false,
     })
-    async getBestHeroesForMap(@Query("name") name: string,
-                              @Query("minSampleSize") minSampleSize ? : number
-                              ): Promise<Array<Hero>> {
+    async getBestHeroesForMap(
+        @Query("name") name: string,
+        @Query("minSampleSize") minSampleSize?: number
+    ): Promise<Array<Hero>> {
+        let heroChoices = await this.heroesService.getHeroChoicesForMap(
+            name,
+            minSampleSize
+        );
 
-        let heroChoices = await this.heroesService.getHeroChoicesForMap(name, minSampleSize);
-
-        return (heroChoices);
+        return heroChoices;
     }
 }
