@@ -54,20 +54,20 @@ export class HeroesController {
     })
     @ApiBody({
         type: [Hero],
-        description: "Allied heroes array"
+        description: "Allied heroes array",
     })
     async getTeamSynergies(
-        @Body() allyTeam : [Hero],
-        @Query("minSampleSize") minSampleSize? : number,
-        @Query("selectionRange") selectionRange? : number
-    ) : Promise<Array<Hero>>
-    {
+        @Body() allyTeam: [Hero],
+        @Query("minSampleSize") minSampleSize?: number,
+        @Query("selectionRange") selectionRange?: number
+    ): Promise<Array<Hero>> {
         // ! you really only need an array of names for the ally team
         let heroChoices = await this.heroesService.getSynergyWinrates(
-            allyTeam, minSampleSize, selectionRange
-        )
+            allyTeam,
+            minSampleSize,
+            selectionRange
+        );
 
-        return (heroChoices);
+        return heroChoices;
     }
-
 }

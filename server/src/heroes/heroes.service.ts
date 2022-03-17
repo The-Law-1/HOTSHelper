@@ -1,7 +1,6 @@
 const puppeteer = require("puppeteer");
 import { Injectable } from "@nestjs/common";
-import { Browser, Page } from "puppeteer";
-import { sample } from "rxjs";
+import { Browser, ElementHandle, Page } from "puppeteer";
 import { Hero } from "./hero.dto";
 
 enum Sorting {
@@ -12,7 +11,7 @@ enum Sorting {
 @Injectable()
 export class HeroesService {
     async test(): Promise<any> {
-        const browser = await puppeteer.launch({ headless: false });
+        const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
         await page.goto("https://www.hotslogs.com/Default");
 
@@ -41,39 +40,118 @@ export class HeroesService {
         let bestChoicesArray = []; // * array of arrays of best heroes for each ally member
         let worstChoicesArray = []; // * array of arrays of worst heroes for each ally member
 
-        const browser = await puppeteer.launch({ headless: false });
+        const browser = await puppeteer.launch();
 
-        // ! test and fix, the returned array is empty
-        // * export this to function
-            let allHeroStats = [];
-            const page = await browser.newPage();
-            // ! hero name needs to be properly written and capital letters at the start of words
-            await page.goto(
-                `https://www.hotslogs.com/Sitewide/TalentDetails?Hero=${allyTeam[0].name}&Tab=winRateWithOtherHeroes`
-            );
-            allHeroStats = await this.scrapeGenericTable(minSampleSize, page);
-            console.log(allHeroStats);
+        for await (const allyHero of allyTeam) {
+            console.log("Fetching choices for hero ", allyHero.name);
 
-            bestChoicesArray = this.filterHeroesWinrate(allHeroStats, Sorting.Ascending, selectionRange);
-            worstChoicesArray = this.filterHeroesWinrate(allHeroStats, Sorting.Descending, selectionRange);
+            if (allyHero !== null) {
+                const { bestChoices, worstChoices } =
+                    await this.getChoicesWithHero(
+                        allyHero.name,
+                        browser,
+                        selectionRange,
+                        minSampleSize
+                    );
+                console.log("Got choices");
+                console.log(bestChoices);
+                console.log(worstChoices);
 
-        // * export this to function
+                // * for each allied hero, push synergies to best/worst choices array
+                bestChoicesArray.push(bestChoices);
+                worstChoicesArray.push(worstChoices);
+            }
+        }
 
-
-        // * for each allied hero, push synergies to best/worst choices array
-
-        // * loop over arrays, highest average remains in final heroChoices
-        heroChoices = heroChoices.concat(bestChoicesArray, worstChoicesArray);
-
+        // * get x best/worst elements for each ally
+        let samplesPerHero = 2;
+        // ! you're supposed to have {selectionRange} items in here so we should be fine with this
+        // ! but be careful
+        // todo also don't suggest a hero if it's already in the team !!
+        for (let i = 0; i < bestChoicesArray.length; i++) {
+            for (let j = 0; j < samplesPerHero; j++) {
+                heroChoices.push(bestChoicesArray[i][j]);
+            }
+        }
+        for (let i = 0; i < worstChoicesArray.length; i++) {
+            for (let j = 0; j < samplesPerHero; j++) {
+                heroChoices.push(worstChoicesArray[i][j]);
+            }
+        }
         console.log("Closing browser");
         await browser.close();
 
         return heroChoices;
     }
 
+    async getChoicesWithHero(
+        heroName: string,
+        browser: Browser,
+        selectionRange: number = 8,
+        minSampleSize: number = 30
+    ): Promise<any> {
+        let allHeroStats = [];
+        let bestChoices = [];
+        let worstChoices = [];
+
+        const page = await browser.newPage();
+        // ! hero name needs to be properly written and capital letters at the start of words
+        console.log("Hero duos for : " + heroName);
+
+        const urlString = `https://www.hotslogs.com/Sitewide/TalentDetails?Hero=${heroName}&Tab=winRateWithOtherHeroes`;
+
+        await page.goto(urlString);
+
+        console.log("page loaded");
+
+        // await page.waitForSelector("#DataTables_Table_1", {timeout: 10000});
+
+        // * make sure you get the correct table id and send it to the function
+        let tableToScrape = await page.$("#DataTables_Table_1");
+
+        console.log(tableToScrape === null ? "Table not found" : "FOund table");
+
+        allHeroStats = await this.scrapeGenericTable(
+            tableToScrape,
+            3,
+            minSampleSize
+        );
+
+        bestChoices = this.filterHeroesWinrate(
+            allHeroStats,
+            Sorting.Ascending,
+            selectionRange
+        );
+        worstChoices = this.filterHeroesWinrate(
+            allHeroStats,
+            Sorting.Descending,
+            selectionRange
+        );
+
+        console.log(bestChoices);
+        console.log(worstChoices);
+
+        // * convert base winrate to per-hero
+        for (let i = 0; i < bestChoices.length; i++) {
+            const hero = bestChoices[i];
+            hero.winRatePerDuo[heroName] = hero.winRate;
+        }
+        for (let i = 0; i < worstChoices.length; i++) {
+            const hero = worstChoices[i];
+            hero.winRatePerDuo[heroName] = hero.winRate;
+        }
+
+        return { bestChoices, worstChoices };
+    }
+
     // * scrapes name, sample size, winrate from a generic table on hotslogs
-    async scrapeGenericTable(minSampleSize : number = 30, page : Page) : Promise<Array<Hero>>
-    {
+    // * the name and sample size is often the same index, but not the winrate index, you need to pass it
+    // * just count the columns
+    async scrapeGenericTable(
+        tableToScrape: ElementHandle<Element>,
+        winrateIndex: number,
+        minSampleSize: number = 30
+    ): Promise<Array<Hero>> {
         let heroStats = [];
 
         let currentID = 0;
@@ -84,7 +162,8 @@ export class HeroesService {
         // todo we really should get the amount of heroes from somewhere and make this a for loop
         // * loop over all the rows
         while (!stopSearching) {
-            let rowElement = await page.$(`#__${currentID}`);
+            let rowElement = await tableToScrape.$(`#__${currentID}`);
+            console.log("Found row");
 
             if (rowElement === null) {
                 stopSearching = true;
@@ -92,6 +171,13 @@ export class HeroesService {
                 break;
             }
             let rowChildren = await rowElement.$$("td");
+
+            if (rowChildren === null) {
+                console.log("Failed to find row children");
+                // todo throw an error which you will catch !!
+            }
+
+            console.log("Found row children");
 
             // * get sample size
             let sampleSize = await rowChildren[2].evaluate(
@@ -105,28 +191,27 @@ export class HeroesService {
                 let heroName = await rowChildren[1].evaluate(
                     (el: Element) => el.textContent
                 );
-                console.log("Scraping hero " + heroName);
 
                 // * win %
-                let winRate = await rowChildren[rowChildren.length - 1].evaluate(
+                let winRate = await rowChildren[winrateIndex].evaluate(
                     (el: Element) => el.textContent
                 );
 
-                heroStats.push(
-                    new Hero(
-                        heroName,
-                        parseInt(sampleSize),
-                        parseFloat(winRate)
-                    )
+                let scrapedHero = new Hero(
+                    heroName,
+                    parseInt(sampleSize),
+                    parseFloat(winRate)
                 );
+
+                heroStats.push(scrapedHero);
+                console.log("Scraped hero ", scrapedHero);
 
                 // ? hero portrait url ?
             }
             currentID++;
         }
 
-
-        return (heroStats);
+        return heroStats;
     }
 
     async getHeroChoicesForMap(
@@ -140,7 +225,7 @@ export class HeroesService {
         console.log("Got map : ", mapName);
         console.log("Got min sample size: ", minSampleSize);
 
-        const browser = await puppeteer.launch({ headless: false });
+        const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
         // ! the map needs to be properly written and capital letters at the start of words
         await page.goto(
