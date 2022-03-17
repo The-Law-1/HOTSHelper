@@ -51,11 +51,9 @@ export class HeroesService {
                         allyHero.name,
                         browser,
                         selectionRange,
-                        minSampleSize
+                        minSampleSize,
+                        allyTeam
                     );
-                console.log("Got choices");
-                console.log(bestChoices);
-                console.log(worstChoices);
 
                 // * for each allied hero, push synergies to best/worst choices array
                 bestChoicesArray.push(bestChoices);
@@ -88,7 +86,8 @@ export class HeroesService {
         heroName: string,
         browser: Browser,
         selectionRange: number = 8,
-        minSampleSize: number = 30
+        minSampleSize: number = 30,
+        allyTeam : Array<Hero> = []
     ): Promise<any> {
         let allHeroStats = [];
         let bestChoices = [];
@@ -117,6 +116,11 @@ export class HeroesService {
             minSampleSize
         );
 
+        // * exclude already picked heroes
+        console.log("stats length before ", allHeroStats.length);
+        allHeroStats = allHeroStats.filter(hero => allyTeam.find(ally => ally.name === hero.name) === undefined);
+        console.log("stats length after ", allHeroStats.length);
+
         bestChoices = this.filterHeroesWinrate(
             allHeroStats,
             Sorting.Ascending,
@@ -127,9 +131,6 @@ export class HeroesService {
             Sorting.Descending,
             selectionRange
         );
-
-        console.log(bestChoices);
-        console.log(worstChoices);
 
         // * convert base winrate to per-hero
         for (let i = 0; i < bestChoices.length; i++) {
@@ -163,8 +164,8 @@ export class HeroesService {
         // * loop over all the rows
         while (!stopSearching) {
             let rowElement = await tableToScrape.$(`#__${currentID}`);
-            console.log("Found row");
 
+            console.log("Found row");
             if (rowElement === null) {
                 stopSearching = true;
                 console.log("Broke out of the search loop at id ", currentID);
@@ -176,8 +177,8 @@ export class HeroesService {
                 console.log("Failed to find row children");
                 // todo throw an error which you will catch !!
             }
-
             console.log("Found row children");
+
 
             // * get sample size
             let sampleSize = await rowChildren[2].evaluate(
@@ -204,7 +205,6 @@ export class HeroesService {
                 );
 
                 heroStats.push(scrapedHero);
-                console.log("Scraped hero ", scrapedHero);
 
                 // ? hero portrait url ?
             }
