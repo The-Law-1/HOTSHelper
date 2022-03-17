@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { ApiBody, ApiQuery } from "@nestjs/swagger";
 import { Hero } from "./hero.dto";
-import { HeroesService } from "./heroes.service";
+import { DuoWinrateService } from "./duoWinrate.service";
+import { MapWinrateService } from "./mapWinrate/mapWinrate.service";
 
 @Controller("heroes")
 export class HeroesController {
-    constructor(private readonly heroesService: HeroesService) {}
+    constructor(private readonly duoWinrateservice: DuoWinrateService, private readonly mapWinrateService : MapWinrateService) {}
 
     // * it doesn't seem to matter if you write the endpoint with or without the parameters
     // * prbably bc of query
@@ -29,7 +30,7 @@ export class HeroesController {
         @Query("minSampleSize") minSampleSize?: number,
         @Query("selectionRange") selectionRange?: number
     ): Promise<Array<Hero>> {
-        let heroChoices = await this.heroesService.getHeroChoicesForMap(
+        let heroChoices = await this.mapWinrateService.getHeroChoicesForMap(
             name,
             minSampleSize,
             selectionRange
@@ -62,7 +63,7 @@ export class HeroesController {
         @Query("selectionRange") selectionRange?: number
     ): Promise<Array<Hero>> {
         // ! you really only need an array of names for the ally team
-        let heroChoices = await this.heroesService.getSynergyWinrates(
+        let heroChoices = await this.duoWinrateservice.getSynergyWinrates(
             allyTeam,
             minSampleSize,
             selectionRange
