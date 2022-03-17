@@ -9,19 +9,19 @@ export class Hero {
 
     winRate?: number = 0;
 
-    winRatePerMap?: { [key: string]: number } = null;
+    winRatePerMap?: { [key: string]: number } = {};
 
-    winRatePerDuo?: { [key: string]: number } = null;
+    winRatePerDuo?: { [key: string]: number } = {};
 
-    winRatePerMatchup?: { [key: string]: number } = null;
+    winRatePerMatchup?: { [key: string]: number } = {};
 
     constructor(
         name: string,
         gamesPlayed: number,
         winRate: number,
-        winRatePerMap: { [key: string]: number } = null,
-        winRatePerDuo: { [key: string]: number } = null,
-        winRatePerMatchup: { [key: string]: number } = null
+        winRatePerMap: { [key: string]: number } = {},
+        winRatePerDuo: { [key: string]: number } = {},
+        winRatePerMatchup: { [key: string]: number } = {}
     ) {
         this.name = name;
         this.gamesPlayed = gamesPlayed;
