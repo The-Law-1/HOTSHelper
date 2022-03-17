@@ -1,58 +1,50 @@
 const puppeteer = require("puppeteer");
 import { Injectable } from "@nestjs/common";
 import { Browser, ElementHandle, Page } from "puppeteer";
-import { Hero } from "./hero.dto";
-import { HeroScrapingHelper, Sorting} from "./scraping/heroScrapingHelper.service";
+import { Hero } from "../dto/hero.dto";
+import {
+    HeroScrapingHelper,
+    Sorting,
+} from "../scraping/heroScrapingHelper.service";
 
 @Injectable()
 export class DuoWinrateService {
     constructor(private readonly heroScraping: HeroScrapingHelper) {}
 
     async getSynergyWinrates(
-        allyTeam: Array<Hero>,
+        allyTeam: Array<string>,
+        enemyTeam: Array<string>,
         minSampleSize: number = 30,
         selectionRange: number = 8
     ): Promise<Array<Hero>> {
         let heroChoices = [];
 
-        let bestChoicesArray = []; // * array of arrays of best heroes for each ally member
-        let worstChoicesArray = []; // * array of arrays of worst heroes for each ally member
-
         const browser = await puppeteer.launch();
+        let samplesPerHero = 2;
 
-        for await (const allyHero of allyTeam) {
-            console.log("Fetching choices for hero ", allyHero.name);
+        for await (const allyName of allyTeam) {
+            console.log("Fetching choices for hero ", allyName);
 
-            if (allyHero !== null) {
+            if (allyName !== null) {
                 const { bestChoices, worstChoices } =
                     await this.getChoicesWithHero(
-                        allyHero.name,
+                        allyName,
                         browser,
                         selectionRange,
                         minSampleSize,
-                        allyTeam
+                        allyTeam,
+                        enemyTeam
                     );
 
-                // * for each allied hero, push synergies to best/worst choices array
-                bestChoicesArray.push(bestChoices);
-                worstChoicesArray.push(worstChoices);
+                // get x best/worst elements for each ally
+
+                for (let j = 0; j < samplesPerHero; j++)
+                    heroChoices.push(bestChoices[j]);
+                for (let j = 0; j < samplesPerHero; j++)
+                    heroChoices.push(worstChoices[j]);
             }
         }
 
-        // * get x best/worst elements for each ally
-        let samplesPerHero = 2;
-        // ! you're supposed to have {selectionRange} items in here so we should be fine with this
-        // ! but be careful
-        for (let i = 0; i < bestChoicesArray.length; i++) {
-            for (let j = 0; j < samplesPerHero; j++) {
-                heroChoices.push(bestChoicesArray[i][j]);
-            }
-        }
-        for (let i = 0; i < worstChoicesArray.length; i++) {
-            for (let j = 0; j < samplesPerHero; j++) {
-                heroChoices.push(worstChoicesArray[i][j]);
-            }
-        }
         console.log("Closing browser");
         await browser.close();
 
@@ -64,7 +56,8 @@ export class DuoWinrateService {
         browser: Browser,
         selectionRange: number = 8,
         minSampleSize: number = 30,
-        allyTeam : Array<Hero> = []
+        allyTeam: Array<string> = [],
+        enemyTeam: Array<string> = []
     ): Promise<any> {
         let allHeroStats = [];
         let bestChoices = [];
@@ -75,7 +68,7 @@ export class DuoWinrateService {
         const urlString = `https://www.hotslogs.com/Sitewide/TalentDetails?Hero=${heroName}&Tab=winRateWithOtherHeroes`;
         await page.goto(urlString);
 
-        // * make sure you get the correct table id and send it to the function
+        // make sure you get the correct table id and send it to the function
         let tableToScrape = await page.$("#DataTables_Table_1");
 
         allHeroStats = await this.heroScraping.scrapeGenericTable(
@@ -84,21 +77,30 @@ export class DuoWinrateService {
             minSampleSize
         );
 
-        // * exclude already picked heroes
-        allHeroStats = allHeroStats.filter(hero => allyTeam.find(ally => ally.name === hero.name) === undefined);
+        // exclude already picked heroes
+        allHeroStats = allHeroStats.filter(
+            (hero) =>
+                allyTeam.find((allyName) => allyName === hero.name) === undefined
+        );
+        allHeroStats = allHeroStats.filter(
+            (hero) =>
+                enemyTeam.find((enemyName) => enemyName === hero.name) === undefined
+        );
 
+        // get only the best choices
         bestChoices = this.heroScraping.filterHeroesWinrate(
             allHeroStats,
             Sorting.Ascending,
             selectionRange
         );
+        // get only the worst choices
         worstChoices = this.heroScraping.filterHeroesWinrate(
             allHeroStats,
             Sorting.Descending,
             selectionRange
         );
 
-        // * convert base winrate to per-hero
+        // convert base winrate to per-hero
         for (let i = 0; i < bestChoices.length; i++) {
             const hero = bestChoices[i];
             hero.winRatePerDuo[heroName] = hero.winRate;

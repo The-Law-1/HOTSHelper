@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { Hero } from '../hero.dto';
-import { HeroScrapingHelper, Sorting } from '../scraping/heroScrapingHelper.service';
+import { Injectable } from "@nestjs/common";
+import { Hero } from "../dto/hero.dto";
+import {
+    HeroScrapingHelper,
+    Sorting,
+} from "../scraping/heroScrapingHelper.service";
 const puppeteer = require("puppeteer");
 
 @Injectable()
@@ -33,7 +36,7 @@ export class MapWinrateService {
             tableToScrape,
             5,
             minSampleSize
-        )
+        );
 
         console.log("Closing browser");
         await browser.close();

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { ElementHandle } from 'puppeteer';
-import { Hero } from '../hero.dto';
+import { Injectable } from "@nestjs/common";
+import { ElementHandle } from "puppeteer";
+import { Hero } from "../dto/hero.dto";
 
 export enum Sorting {
     Ascending,
@@ -9,9 +9,9 @@ export enum Sorting {
 
 @Injectable()
 export class HeroScrapingHelper {
-    // * scrapes name, sample size, winrate from a generic table on hotslogs
-    // * the name and sample size is often the same index, but not the winrate index, you need to pass it
-    // * just count the columns
+    // scrapes name, sample size, winrate from a generic table on hotslogs
+    // the name and sample size is often the same index, but not the winrate index, you need to pass it
+    // just count the columns
     async scrapeGenericTable(
         tableToScrape: ElementHandle<Element>,
         winrateIndex: number,
@@ -42,7 +42,6 @@ export class HeroScrapingHelper {
                 // todo throw an error which you will catch !!
             }
             console.log("Found row children");
-
 
             // * get sample size
             let sampleSize = await rowChildren[2].evaluate(
