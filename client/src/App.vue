@@ -8,6 +8,5 @@
 <template>
     <div>
         <DashboardView/>
-        <!-- <HelloWorld msg="Hello Vue 3 + TypeScript + Vite"/> -->
     </div>
 </template>
