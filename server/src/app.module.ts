@@ -8,9 +8,14 @@ import { DuoWinrateService } from "./heroes/duoWinrate/duoWinrate.service";
 import { HeroScrapingHelper } from "./heroes/scraping/heroScrapingHelper.service";
 import { MapWinrateService } from "./heroes/mapWinrate/mapWinrate.service";
 import { MatchupWinrateService } from "./heroes/matchupWinrate/matchupWinrate.service";
+import { ConfigModule } from "@nestjs/config";
+
+// * config module = env vars cf : https://docs.nestjs.com/techniques/configuration
 
 @Module({
-    imports: [],
+    imports: [ConfigModule.forRoot({
+        isGlobal : true,
+    })],
     controllers: [AppController, CatsController, HeroesController],
     providers: [
         AppService,
