@@ -8,6 +8,8 @@ const port = process.env.SERVER_PORT || 3001;
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+    app.enableCors();
+
     const config = new DocumentBuilder()
         .setTitle("HotsHelper")
         .setDescription("HotsHelper API description")

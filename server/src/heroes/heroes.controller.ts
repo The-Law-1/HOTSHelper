@@ -14,10 +14,9 @@ export class HeroesController {
         private readonly matchupWinrateService: MatchupWinrateService,
     ) {}
 
-    // * it doesn't seem to matter if you write the endpoint with or without the parameters
-    // * prbably bc of query
-    // * keeping it for clarity though
-    @Get("/map/:name/:minSampleSize?/:selectionRange?")
+    // * the query parameters aren't visible in the URL somehow, and if I put URL params I'm having a hard time making them optional
+    // * maybe you could send the info in a specific DTO as a POST request
+    @Get("/map")
     // * need to do this so swagger still shows the param
     @ApiQuery({
         name: "minSampleSize",
@@ -45,7 +44,8 @@ export class HeroesController {
         return heroChoices;
     }
 
-    @Post("/team/synergies/:minSampleSize?/:selectionRange?")
+    // * cf map request
+    @Post("/team/synergies")
     // * need to do this so swagger still shows the param
     @ApiQuery({
         name: "minSampleSize",
@@ -79,7 +79,7 @@ export class HeroesController {
         return heroChoices;
     }
 
-    @Post("/team/matchups/:minSampleSize?/:selectionRange?")
+    @Post("/team/matchups")
     // * need to do this so swagger still shows the param
     @ApiQuery({
         name: "minSampleSize",
@@ -102,7 +102,6 @@ export class HeroesController {
         @Query("minSampleSize") minSampleSize?: number,
         @Query("selectionRange") selectionRange?: number
     ): Promise<Array<Hero>> {
-        // ! you really only need an array of names for the ally team
 
         let heroChoices = await this.matchupWinrateService.getMatchupWinrates(
             heroTeams.allies,
