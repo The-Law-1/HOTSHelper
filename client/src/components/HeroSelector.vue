@@ -2,9 +2,8 @@
     <div class="pt-10 flex justify-center items-center">
         <!-- // * cf https://headlessui.dev/vue/combobox -->
         <div class="w-72">
-            Select a map:
 
-            <Combobox v-model="selectedMap">
+            <Combobox v-model="selectedHero">
                 <div
                     class="
                         w-full
@@ -22,7 +21,7 @@
                             focus:outline-none
                             rounded
                         "
-                        :displayValue="(mapName) => (mapName as string)"
+                        :displayValue="(hero : any) => (hero.name as string)"
                         @change="(evt) => updateQuery(evt.target.value)"
                     />
                 </div>
@@ -39,10 +38,10 @@
                     "
                 >
                     <ComboboxOption
-                        v-for="mapName in filteredMaps"
+                        v-for="hero in filteredHeroes"
                         as="template"
-                        :key="mapName"
-                        :value="mapName"
+                        :key="hero.name"
+                        :value="hero.name"
                         v-slot="{ active }"
                     >
                         <li
@@ -51,7 +50,7 @@
                                 'text-gray-900': !active
                             }">
 
-                            {{ mapName }}
+                            {{ hero.name }}
                         </li>
                     </ComboboxOption>
                 </ComboboxOptions>
@@ -65,47 +64,37 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import HelloWorldButtonVue from "../components/HelloWorldButton.vue";
-
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/vue";
+import { getHeroes } from "../api/heroes";
 
 export default defineComponent({
     components: {
-        HelloWorldButtonVue,
         Combobox,
         ComboboxInput,
         ComboboxOptions,
         ComboboxOption
     },
+    props: {
+        heroes : {
+            type: Array,
+            required: true
+        }
+    },
     data: function () {
         return {
-            selectedMap: "Alterac Pass" as string,
-            query: "" as string,
-            maps: [
-                "Alterac Pass",
-                "Garden Of Terror",
-                "Hanamura Temple",
-                "Volskaya Foundry",
-                "Towers Of Doom",
-                "Infernal Shrines",
-                "Battlefield Of Eternity",
-                "Tomb Of The Spider Queen",
-                "Sky Temple",
-                "Blackheart's Bay",
-                "Dragon Shire",
-                "Cursed Hollow",
-                "Braxis Holdout",
-                "Warhead Junction"
-            ] as Array<string>
+            selectedHero: "" as string,
+            query: "" as string
         }
     },
     computed: {
-        filteredMaps() : Array<string> {
-            let filteredMaps = this.query === ""
-                            ? this.maps
-                            : this.maps.filter((map:string) => map.toLowerCase().includes(this.query.toLowerCase()))
+        filteredHeroes() : Array<any> {
+            let filteredHeroes = this.query === ""
+                                ? this.heroes
+                                : this.heroes.filter((hero:any) => hero.name.toLowerCase().includes(this.query.toLowerCase()))
 
-            return (filteredMaps);
+            // todo include some lenience for ('. ) in names
+
+            return (filteredHeroes);
         }
     },
     methods: {

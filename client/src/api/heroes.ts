@@ -8,3 +8,5 @@ const heroesAPI = axios.create({
 });
 
 export const getHeroesForMap = async (queryParams : any) => await heroesAPI.get(`/map/`, {params: queryParams});
+
+export const getHeroes = async () : Promise<any> => await heroesAPI.get(`/`);
