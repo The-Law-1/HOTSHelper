@@ -20,15 +20,22 @@ export class MapWinrateService {
 
         console.log("Got map : ", mapName);
         console.log("Got min sample size: ", minSampleSize);
+        console.log("Starting browser at ", new Date());
 
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: true,
+        });
         const page = await browser.newPage();
         // ! the map needs to be properly written and capital letters at the start of words
+
+        // todo use promise.race to either load the page first or find the element and move on
+        // * the context gets destroyed when the page loads lol
         await page.goto(
             `https://www.hotslogs.com/Sitewide/HeroAndMapStatistics?Map=${mapName}`
         );
 
-        let tableToScrape = await page.$("#DataTables_Table_0");
+        let tableToScrape = await page.waitForSelector("#DataTables_Table_0");
+        console.log("Scraped table at ", new Date());
 
         console.log(tableToScrape === null ? "Table not found" : "FOund table");
 
@@ -38,31 +45,29 @@ export class MapWinrateService {
             minSampleSize
         );
 
-        console.log("Closing browser");
+        console.log("Scraped heroes and closing at ", new Date());
+
         await browser.close();
 
-        console.log("Filtering heroes");
-
-        let bestHeroes = this.heroScraping.filterHeroesWinrate(
-            allHeroStats,
-            Sorting.Ascending,
-            selectionRange
-        );
         let worstHeroes = this.heroScraping.filterHeroesWinrate(
             allHeroStats,
             Sorting.Descending,
             selectionRange
         );
+        let bestHeroes = this.heroScraping.filterHeroesWinrate(
+            allHeroStats,
+            Sorting.Ascending,
+            selectionRange
+        );
 
-        console.log("Concatting arrays");
         heroChoices = heroChoices.concat(bestHeroes, worstHeroes);
 
         for (let i = 0; i < heroChoices.length; i++) {
             const hero = heroChoices[i];
             hero.winRatePerMap[mapName] = hero.winRate;
         }
+        console.log("Returning at ", new Date());
 
-        console.log("returning", heroChoices);
         return heroChoices;
     }
 }

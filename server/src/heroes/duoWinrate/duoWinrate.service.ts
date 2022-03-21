@@ -80,11 +80,13 @@ export class DuoWinrateService {
         // exclude already picked heroes
         allHeroStats = allHeroStats.filter(
             (hero) =>
-                allyTeam.find((allyName) => allyName === hero.name) === undefined
+                allyTeam.find((allyName) => allyName === hero.name) ===
+                undefined
         );
         allHeroStats = allHeroStats.filter(
             (hero) =>
-                enemyTeam.find((enemyName) => enemyName === hero.name) === undefined
+                enemyTeam.find((enemyName) => enemyName === hero.name) ===
+                undefined
         );
 
         // get only the best choices

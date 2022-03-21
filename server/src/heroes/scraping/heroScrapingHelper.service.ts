@@ -29,19 +29,15 @@ export class HeroScrapingHelper {
             const rowChildren = rowChildrenArray[i];
 
             // * get sample size
-            let sampleSize = await rowChildren[2].evaluate(
-                (el: Element) => el.textContent.replace(',', '')
+            let sampleSize = await rowChildren[2].evaluate((el: Element) =>
+                el.textContent.replace(",", "")
             );
 
             if (parseInt(sampleSize) >= minSampleSize) {
-
-                const {heroName, winRate} = await this.parseRow(
-                    rowChildren,
-                    {
-                        "heroName": 1,
-                        "winRate":winrateIndex
-                    }
-                );
+                const { heroName, winRate } = await this.parseRow(rowChildren, {
+                    heroName: 1,
+                    winRate: winrateIndex,
+                });
 
                 // todo get more info maybe, like portrait or smth, better too much than not enough
                 let scrapedHero = new Hero(
@@ -55,8 +51,9 @@ export class HeroScrapingHelper {
         return heroStats;
     }
 
-    async tableTo2DArray(tableToScrape: ElementHandle<Element>) : Promise<Array<Array<ElementHandle<Element>>>>
-    {
+    async tableTo2DArray(
+        tableToScrape: ElementHandle<Element>
+    ): Promise<Array<Array<ElementHandle<Element>>>> {
         // * retrieve all the rows at once, careful, the table header contains trs so only get from tbody
         let tableRows = await tableToScrape.$$("tbody tr");
         let rowChildrenArray = [];
@@ -70,20 +67,22 @@ export class HeroScrapingHelper {
 
             rowChildrenArray.push(rowChildren);
         }
-        return (rowChildrenArray);
+        return rowChildrenArray;
     }
 
-    async parseRow(rowChildren : Array<ElementHandle>, indexesToParse : { [key: string]: number }) : Promise<any>
-    {
+    async parseRow(
+        rowChildren: Array<ElementHandle>,
+        indexesToParse: { [key: string]: number }
+    ): Promise<any> {
         let results = {};
 
         for (const [key, index] of Object.entries(indexesToParse)) {
             results[key] = await rowChildren[index].evaluate(
-                (el : Element) => el.textContent
+                (el: Element) => el.textContent
             );
         }
 
-        return (results);
+        return results;
     }
 
     filterHeroesWinrate(
@@ -103,17 +102,20 @@ export class HeroScrapingHelper {
             currentComp = sort === Sorting.Ascending ? 0 : 100;
 
             heroSamplesCopy.forEach((hero) => {
-
-                if ((hero.winRate > currentComp && Sorting.Ascending)
-                    ||
-                    (hero.winRate < currentComp && Sorting.Descending)) {
+                if (
+                    (hero.winRate > currentComp &&
+                        sort === Sorting.Ascending) ||
+                    (hero.winRate < currentComp && sort === Sorting.Descending)
+                ) {
                     currentComp = hero.winRate;
                     currentHero = hero;
                 }
             });
             if (currentHero !== null) {
                 // * remove it from the samples and push it to the results
-                heroSamplesCopy = heroSamplesCopy.filter(hero => hero.name !== currentHero.name);
+                heroSamplesCopy = heroSamplesCopy.filter(
+                    (hero) => hero.name !== currentHero.name
+                );
                 result.push(currentHero);
                 currentHero = null;
             }

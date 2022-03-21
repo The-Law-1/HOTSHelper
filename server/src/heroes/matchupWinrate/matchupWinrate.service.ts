@@ -23,7 +23,7 @@ export class MatchupWinrateService {
         let samplesPerHero = 2;
 
         for await (const enemyName of enemyTeam) {
-            console.log("Fetching choices for hero ", );
+            console.log("Fetching choices for hero ");
 
             if (enemyName !== null) {
                 const { bestChoices, worstChoices } =
@@ -79,11 +79,13 @@ export class MatchupWinrateService {
         // exclude already picked heroes
         allHeroStats = allHeroStats.filter(
             (hero) =>
-                allyTeam.find((allyName) => allyName === hero.name) === undefined
+                allyTeam.find((allyName) => allyName === hero.name) ===
+                undefined
         );
         allHeroStats = allHeroStats.filter(
             (hero) =>
-                enemyTeam.find((enemyName) => enemyName === hero.name) === undefined
+                enemyTeam.find((enemyName) => enemyName === hero.name) ===
+                undefined
         );
 
         // * inverting the sorting because here less is more (enemy POV)

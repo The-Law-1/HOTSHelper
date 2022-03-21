@@ -1,5 +1,19 @@
-import { Body, Controller, Get, Param, Post, Query, Req, Response } from "@nestjs/common";
-import { ApiBody, ApiQuery, ApiResponse, ApiResponseProperty } from "@nestjs/swagger";
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    Post,
+    Query,
+    Req,
+    Response,
+} from "@nestjs/common";
+import {
+    ApiBody,
+    ApiQuery,
+    ApiResponse,
+    ApiResponseProperty,
+} from "@nestjs/swagger";
 import { Hero } from "./dto/hero.dto";
 import { TeamsDto } from "./dto/teams.dto";
 import { DuoWinrateService } from "./duoWinrate/duoWinrate.service";
@@ -104,7 +118,6 @@ export class HeroesController {
         @Query("minSampleSize") minSampleSize?: number,
         @Query("selectionRange") selectionRange?: number
     ): Promise<Array<Hero>> {
-
         let heroChoices = await this.matchupWinrateService.getMatchupWinrates(
             heroTeams.allies,
             heroTeams.enemies,
@@ -117,10 +130,9 @@ export class HeroesController {
 
     // * get all the heroes for dropdowns (names + portraits + role + winrate + games played, all but specifics really)
     @Get("/")
-    async getAllHeroesBasicInfo() : Promise<Array<Hero>>
-    {
+    async getAllHeroesBasicInfo(): Promise<Array<Hero>> {
         let heroes = this.basicInfoService.scrapeHeroesBasic();
 
-        return (heroes);
+        return heroes;
     }
 }
