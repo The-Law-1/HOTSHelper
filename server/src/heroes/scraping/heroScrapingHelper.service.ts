@@ -45,7 +45,7 @@ export class HeroScrapingHelper {
 
             // * get sample size
             let sampleSize = await rowChildren[2].evaluate(
-                (el: Element) => el.textContent
+                (el: Element) => el.textContent.replace(',', '')
             );
 
             if (parseInt(sampleSize) >= minSampleSize) {
