@@ -22,9 +22,8 @@ export class HeroScrapingHelper {
         let currentID = 0;
         let stopSearching = false;
 
-        // todo export some of these to their separate functions
+        // todo retrieve all the rows at once, like all the tr elements, should be fine
 
-        // todo we really should get the amount of heroes from somewhere and make this a for loop
         // * loop over all the rows
         while (!stopSearching) {
             let rowElement = await tableToScrape.$(`#__${currentID}`);
@@ -42,6 +41,8 @@ export class HeroScrapingHelper {
                 // todo throw an error which you will catch !!
             }
             console.log("Found row children");
+
+            // todo call parserow here and deconstruct the values
 
             // * get sample size
             let sampleSize = await rowChildren[2].evaluate(
@@ -75,6 +76,13 @@ export class HeroScrapingHelper {
         }
 
         return heroStats;
+    }
+
+    parseRow(rowToParse : Element, indexesToParse : { [key: string]: number }, minSampleSize : number) : any
+    {
+        // * returns null if the sample size is too small
+
+        // * otherwise an object with the values given in indexestoparse
     }
 
     filterHeroesWinrate(
