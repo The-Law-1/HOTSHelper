@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common";
+import { table } from "console";
 import { ElementHandle } from "puppeteer";
+import { sample } from "rxjs";
 import { Hero } from "../dto/hero.dto";
 
 export enum Sorting {
@@ -19,30 +21,12 @@ export class HeroScrapingHelper {
     ): Promise<Array<Hero>> {
         let heroStats = [];
 
-        let currentID = 0;
-        let stopSearching = false;
-
-        // todo retrieve all the rows at once, like all the tr elements, should be fine
+        // * retrieve all the rows at once
+        let rowChildrenArray = await this.tableTo2DArray(tableToScrape);
 
         // * loop over all the rows
-        while (!stopSearching) {
-            let rowElement = await tableToScrape.$(`#__${currentID}`);
-
-            console.log("Found row");
-            if (rowElement === null) {
-                stopSearching = true;
-                console.log("Broke out of the search loop at id ", currentID);
-                break;
-            }
-            let rowChildren = await rowElement.$$("td");
-
-            if (rowChildren === null) {
-                console.log("Failed to find row children");
-                // todo throw an error which you will catch !!
-            }
-            console.log("Found row children");
-
-            // todo call parserow here and deconstruct the values
+        for (let i = 0; i < rowChildrenArray.length; i++) {
+            const rowChildren = rowChildrenArray[i];
 
             // * get sample size
             let sampleSize = await rowChildren[2].evaluate(
@@ -50,39 +34,56 @@ export class HeroScrapingHelper {
             );
 
             if (parseInt(sampleSize) >= minSampleSize) {
-                // * scrape all the hero data we can get (name, winrate (RELATIVE TO MAP), sample)
 
-                // * get hero name
-                let heroName = await rowChildren[1].evaluate(
-                    (el: Element) => el.textContent
+                const {heroName, winRate} = await this.parseRow(
+                    rowChildren,
+                    {
+                        "heroName": 1,
+                        "winRate":winrateIndex
+                    }
                 );
 
-                // * win %
-                let winRate = await rowChildren[winrateIndex].evaluate(
-                    (el: Element) => el.textContent
-                );
-
+                // todo get more info maybe, like portrait or smth, better too much than not enough
                 let scrapedHero = new Hero(
                     heroName,
                     parseInt(sampleSize),
                     parseFloat(winRate)
                 );
-
                 heroStats.push(scrapedHero);
-
-                // ? hero portrait url ?
             }
-            currentID++;
         }
-
         return heroStats;
     }
 
-    parseRow(rowToParse : Element, indexesToParse : { [key: string]: number }, minSampleSize : number) : any
+    async tableTo2DArray(tableToScrape: ElementHandle<Element>) : Promise<Array<Array<ElementHandle<Element>>>>
     {
-        // * returns null if the sample size is too small
+        // * retrieve all the rows at once, careful, the table header contains trs so only get from tbody
+        let tableRows = await tableToScrape.$$("tbody tr");
+        let rowChildrenArray = [];
 
-        // * otherwise an object with the values given in indexestoparse
+        // * i don't think there's a better way to do this, there's two scrapes either way
+        // * https://stackoverflow.com/questions/49236981/want-to-scrape-table-using-puppeteer-how-can-i-get-all-rows-iterate-through-ro
+        for (let i = 0; i < tableRows.length; i++) {
+            let tableRow = tableRows[i];
+
+            let rowChildren = await tableRow.$$("td");
+
+            rowChildrenArray.push(rowChildren);
+        }
+        return (rowChildrenArray);
+    }
+
+    async parseRow(rowChildren : Array<ElementHandle>, indexesToParse : { [key: string]: number }) : Promise<any>
+    {
+        let results = {};
+
+        for (const [key, index] of Object.entries(indexesToParse)) {
+            results[key] = await rowChildren[index].evaluate(
+                (el : Element) => el.textContent
+            );
+        }
+
+        return (results);
     }
 
     filterHeroesWinrate(
@@ -94,32 +95,25 @@ export class HeroScrapingHelper {
         let currentComp = 0;
         let currentHero = null;
 
+        //  we are butchering this array
+        let heroSamplesCopy = [...heroSamples];
+
+        // the idea here is to get the best/worst maxselection
         for (let i = 0; i < maxSelection; i++) {
             currentComp = sort === Sorting.Ascending ? 0 : 100;
 
-            // ! pretty inefficient but if you got ideas I'm listening
-            heroSamples.forEach((hero) => {
-                if (
-                    result.findIndex(
-                        (resHero: Hero) => resHero.name === hero.name
-                    ) !== -1
-                )
-                    return;
+            heroSamplesCopy.forEach((hero) => {
 
-                // ! gotta be a better way to do this
-                if (sort === Sorting.Ascending) {
-                    if (hero.winRate > currentComp) {
-                        currentComp = hero.winRate;
-                        currentHero = hero;
-                    }
-                } else {
-                    if (hero.winRate < currentComp) {
-                        currentComp = hero.winRate;
-                        currentHero = hero;
-                    }
+                if ((hero.winRate > currentComp && Sorting.Ascending)
+                    ||
+                    (hero.winRate < currentComp && Sorting.Descending)) {
+                    currentComp = hero.winRate;
+                    currentHero = hero;
                 }
             });
             if (currentHero !== null) {
+                // * remove it from the samples and push it to the results
+                heroSamplesCopy = heroSamplesCopy.filter(hero => hero.name !== currentHero.name);
                 result.push(currentHero);
                 currentHero = null;
             }

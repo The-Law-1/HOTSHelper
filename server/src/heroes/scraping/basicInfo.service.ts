@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { ElementHandle } from "puppeteer";
 import { Hero } from "../dto/hero.dto";
+import { HeroScrapingHelper } from './heroScrapingHelper.service';
 const puppeteer = require("puppeteer");
 
 @Injectable()
 export class BasicInfoService {
+    constructor(private readonly heroScraping: HeroScrapingHelper) {}
 
     async scrapeHeroesBasic(): Promise<Array<Hero>> {
         let heroesInfo = [];
-
-        let currentID = 0;
-        let stopSearching = false;
 
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
@@ -19,49 +18,33 @@ export class BasicInfoService {
 
         let tableToScrape = await page.$("#DataTables_Table_0");
 
+        let rowChildrenArray = await this.heroScraping.tableTo2DArray(tableToScrape);
+
+        console.log("Got row children ", rowChildrenArray.length);
+
         // * loop over all the rows
-        while (!stopSearching) {
-            let rowElement = await tableToScrape.$(`#__${currentID}`);
+        for (let i = 0; i < rowChildrenArray.length; i++) {
+            const rowChildren = rowChildrenArray[i];
 
-            console.log("Found row");
-            if (rowElement === null) {
-                stopSearching = true;
-                console.log("Broke out of the search loop at id ", currentID);
-                break;
-            }
-            let rowChildren = await rowElement.$$("td");
-
-            if (rowChildren === null) {
-                console.log("Failed to find row children");
-                // todo throw an error which you will catch !!
-            }
-            console.log("Found row children");
-
-            // * get hero name
-            let heroName = await rowChildren[1].evaluate(
-                (el: Element) => el.textContent
+            const {heroName, winRate, role, gamesPlayed} = await this.heroScraping.parseRow(
+                rowChildren,
+                {
+                    "heroName": 1,
+                    "winRate": 5,
+                    "role": 7,
+                    "gamesPlayed": 2
+                }
             );
 
             // * replace spaces, dots, apostrophes
             let portraitUrlName = heroName.replace(/[. \']/g, "");
             let portraitUrl = `https://hotslogs.com/Images/Heroes/Portraits/${portraitUrlName}.png`;
 
-            let gamesPlayed = await rowChildren[2].evaluate(
-                (el : Element) => parseInt(el.textContent.replace(',', ''))
-            );
-            let winRate = await rowChildren[5].evaluate(
-                (el : Element) => parseFloat(el.textContent)
-            );
-            let role = await rowChildren[7].evaluate(
-                (el : Element) => el.textContent
-            );
-
-            let heroInfo = new Hero(heroName, gamesPlayed, winRate, {}, {}, {}, portraitUrl, role);
+            let heroInfo = new Hero(heroName, parseInt(gamesPlayed.replace(',', '')), parseFloat(winRate), {}, {}, {}, portraitUrl, role);
 
             heroesInfo.push(heroInfo);
-
-            currentID++;
         }
+        console.log("Got heroes basic info");
 
         return heroesInfo;
     }

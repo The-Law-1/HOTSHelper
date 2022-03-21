@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
-import { ApiBody, ApiQuery } from "@nestjs/swagger";
+import { Body, Controller, Get, Param, Post, Query, Req, Response } from "@nestjs/common";
+import { ApiBody, ApiQuery, ApiResponse, ApiResponseProperty } from "@nestjs/swagger";
 import { Hero } from "./dto/hero.dto";
 import { TeamsDto } from "./dto/teams.dto";
 import { DuoWinrateService } from "./duoWinrate/duoWinrate.service";
