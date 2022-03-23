@@ -19,6 +19,10 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup("api", app, document);
 
+    // * this could have been good if the single browser trick worked
+    // * but since it doesn't it's just bad for performance I think
+    // app.enableShutdownHooks();
+
     await app.listen(port);
 }
 bootstrap();

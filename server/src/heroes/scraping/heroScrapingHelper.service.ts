@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnApplicationShutdown } from "@nestjs/common";
 import { table } from "console";
-import { ElementHandle } from "puppeteer";
+import { Browser, ElementHandle } from "puppeteer";
 import { sample } from "rxjs";
 import { Hero } from "../dto/hero.dto";
+const puppeteer = require("puppeteer");
 
 export enum Sorting {
     Ascending,
@@ -10,7 +11,47 @@ export enum Sorting {
 }
 
 @Injectable()
-export class HeroScrapingHelper {
+export class HeroScrapingHelper implements OnApplicationShutdown {
+
+    static browserEndpoint : string = "";
+
+    // * cf https://docs.nestjs.com/fundamentals/lifecycle-events
+    async onApplicationShutdown(signal?: string) {
+        console.log("Retrieved signal ", signal);
+
+        if (HeroScrapingHelper.browserEndpoint !== "") {
+            console.log("Closing browser");
+            let browser = await puppeteer.launch({ headless: false});
+            await browser.close();
+            console.log("Closed browser");
+        }
+    }
+
+    async GetBrowser(headless : boolean = true) : Promise<Browser>
+    {
+        let browser = null;
+        browser = await puppeteer.launch({ headless: headless, userDataDir: 'puppeteerCache'});
+
+        return (browser);
+
+        // * the browser's performance is okay, it's the page loading that takes time
+        // if (HeroScrapingHelper.browserEndpoint === "") { // * create a new browser
+        //     console.log("Creating a new browser");
+        //     browser = await puppeteer.launch({ headless: false});
+        //     HeroScrapingHelper.browserEndpoint = browser.wsEndpoint();
+        //     console.log("New endpoint: ", HeroScrapingHelper.browserEndpoint);
+        // } else {
+        //     console.log("Browser endpoint: ", HeroScrapingHelper.browserEndpoint);
+        //     console.log("Connecting to browser");
+        //     browser = await puppeteer.connect({
+        //         browserWSEndpoint: HeroScrapingHelper.browserEndpoint,
+        //         headless: false
+        //     });
+        // }
+
+        // return (browser);
+    }
+
     // scrapes name, sample size, winrate from a generic table on hotslogs
     // the name and sample size is often the same index, but not the winrate index, you need to pass it
     // just count the columns

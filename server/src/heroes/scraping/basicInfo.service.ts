@@ -11,21 +11,35 @@ export class BasicInfoService {
     async scrapeHeroesBasic(): Promise<Array<Hero>> {
         let heroesInfo = [];
 
-        const browser = await puppeteer.launch();
+        console.log("Starting browser at ", new Date());
+        let browser = await this.heroScraping.GetBrowser();
+
         const page = await browser.newPage();
         const urlString = `https://www.hotslogs.com/Default`;
         await page.goto(urlString);
 
+        console.log("Went to page", urlString);
+        const pageMetrics = await page.metrics();
+        console.log("Got page metrics, duration :", pageMetrics.TaskDuration)
+
         let tableToScrape = await page.$("#DataTables_Table_0");
+        console.log("Scraped first table");
 
         let rowChildrenArray = await this.heroScraping.tableTo2DArray(
             tableToScrape
         );
 
-        console.log("Got row children ", rowChildrenArray.length);
+        // * we should close this page huh ? Or stop opening new ones
+        //await page.close();
+        console.log("Scraped table at ", new Date());
+
+        // console.log("Got row children ", rowChildrenArray.length);
 
         // * loop over all the rows
         for (let i = 0; i < rowChildrenArray.length; i++) {
+            if (i === 0) {
+                console.log("In loop to parse rows");
+            }
             const rowChildren = rowChildrenArray[i];
 
             const { heroName, winRate, role, gamesPlayed } =
@@ -55,6 +69,7 @@ export class BasicInfoService {
         }
         console.log("Got heroes basic info");
 
+        await browser.close();
         return heroesInfo;
     }
 }

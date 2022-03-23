@@ -22,9 +22,8 @@ export class MapWinrateService {
         console.log("Got min sample size: ", minSampleSize);
         console.log("Starting browser at ", new Date());
 
-        const browser = await puppeteer.launch({
-            headless: true,
-        });
+        const browser = await this.heroScraping.GetBrowser();
+
         const page = await browser.newPage();
         // ! the map needs to be properly written and capital letters at the start of words
 

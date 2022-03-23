@@ -19,7 +19,7 @@ export class DuoWinrateService {
     ): Promise<Array<Hero>> {
         let heroChoices = [];
 
-        const browser = await puppeteer.launch();
+        const browser = await this.heroScraping.GetBrowser();
         let samplesPerHero = 2;
 
         for await (const allyName of allyTeam) {
