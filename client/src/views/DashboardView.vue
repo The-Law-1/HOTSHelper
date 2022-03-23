@@ -6,6 +6,7 @@
     <div class="text-center w-[100%] content-center">
         <!-- // todo this will need to emit an event with the map's name so we can send to server -->
         <!-- // todo also when you scrape the maps like a big boy pass them as a prop here -->
+
         <MapSelection/>
 
         <div

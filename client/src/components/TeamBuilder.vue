@@ -5,7 +5,9 @@
             Retrieving heroes
             <LoadingSpinner/>
         </div>
-        <HeroSelector :heroes="heroes" :heroes-loaded="heroesLoaded"/>
+        <div v-for="i in 5" :key="('HeroSelector' + i)">
+            <HeroSelector :heroes="heroes" :heroes-loaded="heroesLoaded"/>
+        </div>
     </div>
 </template>
 

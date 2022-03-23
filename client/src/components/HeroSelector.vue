@@ -1,6 +1,6 @@
 <template>
-    <div class="pt-10 flex justify-center items-center">
-        <!-- // * cf https://headlessui.dev/vue/combobox -->
+    <div class="pt-10">
+        <!-- // * if you want to stop moving the whole page, set a max height but then z-index issues -->
         <div class="w-72">
 
             <Combobox v-model="selectedHero">
@@ -20,6 +20,7 @@
                             focus:border-cyan-300
                             focus:outline-none
                             rounded
+                            z-0
                         "
                         :displayValue="(hero : any) => (heroesLoaded ? hero.name : 'Abathur')"
                         @change="(evt) => updateQuery(evt.target.value)"
@@ -42,20 +43,27 @@
                         as="template"
                         :key="hero.name"
                         :value="hero"
-                        v-slot="{ active }"
+                        v-slot="{ active, activeOption }"
                     >
-                        <li
-                            :class="{
-                                'bg-blue-500 text-white': active,
-                                'text-gray-900': !active
-                            }">
+                        <div>
+                            <li
+                                :class="{
+                                    'bg-blue-500 text-white': active,
+                                    'text-gray-900': !active
+                                }">
 
-                            {{ hero.name }}
-                        </li>
+                                {{ hero.name }}
+                                <span v-if="active">
+                                    <img class=" inline rounded-full w-12" :src="hero.portraitUrl"/>
+                                </span>
+                            </li>
+                        </div>
                     </ComboboxOption>
                 </ComboboxOptions>
-
-        </Combobox>
+                <span v-if="selectedHero && heroesLoaded">
+                    <img class="inline rounded-full w-12" :src="selectedHero.portraitUrl"/>
+                </span>
+            </Combobox>
         </div>
 
     </div>
@@ -85,16 +93,18 @@ export default defineComponent({
     },
     data: function () {
         return {
-            selectedHero: "Abathur" as string,
+            selectedHero: {} as any,
             query: "" as string
         }
     },
     computed: {
-
         filteredHeroes() : Array<any> {
             let filteredHeroes = this.query === ""
                                 ? this.heroes
-                                : this.heroes.filter((hero:any) => hero.name.toLowerCase().includes(this.query.toLowerCase()))
+                                : this.heroes.filter((hero:any) => {
+                                    let heroName = hero.name.toLowerCase().replace(/[. \']/g, "");
+                                    return (heroName.includes(this.query.toLowerCase()))
+                                });
 
             // todo include some lenience for ('. ) in names
 

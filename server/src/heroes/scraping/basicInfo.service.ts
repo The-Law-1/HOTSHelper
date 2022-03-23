@@ -16,7 +16,14 @@ export class BasicInfoService {
 
         const page = await browser.newPage();
         const urlString = `https://www.hotslogs.com/Default`;
-        await page.goto(urlString);
+        try {
+            await page.goto(urlString);
+        } catch (error) {
+            console.log("Error navigating to page ", error);
+            await browser.close();
+            // * return an error
+            return (heroesInfo);
+        }
 
         console.log("Went to page", urlString);
         const pageMetrics = await page.metrics();

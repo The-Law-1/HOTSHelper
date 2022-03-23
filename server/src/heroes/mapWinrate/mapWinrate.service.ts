@@ -29,9 +29,15 @@ export class MapWinrateService {
 
         // todo use promise.race to either load the page first or find the element and move on
         // * the context gets destroyed when the page loads lol
-        await page.goto(
-            `https://www.hotslogs.com/Sitewide/HeroAndMapStatistics?Map=${mapName}`
-        );
+        let urlString = `https://www.hotslogs.com/Sitewide/HeroAndMapStatistics?Map=${mapName}`;
+        try {
+            await page.goto(urlString);
+        } catch (error) {
+            console.log("Error navigating to page ", error);
+            await browser.close();
+            // * return an error
+            return ([]);
+        }
 
         let tableToScrape = await page.waitForSelector("#DataTables_Table_0");
         console.log("Scraped table at ", new Date());

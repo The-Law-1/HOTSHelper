@@ -37,6 +37,10 @@ export class DuoWinrateService {
                     );
 
                 // get x best/worst elements for each ally
+                if (bestChoices.length < samplesPerHero || worstChoices.length) {
+                    console.log("Error");
+                    continue;
+                }
 
                 for (let j = 0; j < samplesPerHero; j++)
                     heroChoices.push(bestChoices[j]);
@@ -66,8 +70,17 @@ export class DuoWinrateService {
         const page = await browser.newPage();
         // ! hero name needs to be properly written and capital letters at the start of words
         const urlString = `https://www.hotslogs.com/Sitewide/TalentDetails?Hero=${heroName}&Tab=winRateWithOtherHeroes`;
-        await page.goto(urlString);
-
+        try {
+            await page.goto(urlString);
+        } catch (error) {
+            console.log("Error navigating to page ", error);
+            await browser.close();
+            // * return an error
+            return ({
+                bestChoices: [],
+                worstChoices: []
+            });
+        }
         // make sure you get the correct table id and send it to the function
         let tableToScrape = await page.$("#DataTables_Table_1");
 

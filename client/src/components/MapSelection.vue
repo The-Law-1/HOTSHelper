@@ -1,7 +1,7 @@
 <template>
     <div class="pt-10 flex justify-center items-center">
         <!-- // * cf https://headlessui.dev/vue/combobox -->
-        <div class="w-72">
+        <div class="w-72 h-16">
             Select a map:
 
             <Combobox v-model="selectedMap">
@@ -11,7 +11,6 @@
                         relative
                     "
                 >
-
                     <ComboboxInput
                         class="
                             w-full
