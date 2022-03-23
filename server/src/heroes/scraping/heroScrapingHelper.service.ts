@@ -12,8 +12,7 @@ export enum Sorting {
 
 @Injectable()
 export class HeroScrapingHelper implements OnApplicationShutdown {
-
-    static browserEndpoint : string = "";
+    static browserEndpoint: string = "";
 
     // * cf https://docs.nestjs.com/fundamentals/lifecycle-events
     async onApplicationShutdown(signal?: string) {
@@ -21,18 +20,20 @@ export class HeroScrapingHelper implements OnApplicationShutdown {
 
         if (HeroScrapingHelper.browserEndpoint !== "") {
             console.log("Closing browser");
-            let browser = await puppeteer.launch({ headless: false});
+            let browser = await puppeteer.launch({ headless: false });
             await browser.close();
             console.log("Closed browser");
         }
     }
 
-    async GetBrowser(headless : boolean = true) : Promise<Browser>
-    {
+    async GetBrowser(headless: boolean = true): Promise<Browser> {
         let browser = null;
-        browser = await puppeteer.launch({ headless: headless, userDataDir: 'puppeteerCache'});
+        browser = await puppeteer.launch({
+            headless: headless,
+            userDataDir: "puppeteerCache",
+        });
 
-        return (browser);
+        return browser;
 
         // * the browser's performance is okay, it's the page loading that takes time
         // if (HeroScrapingHelper.browserEndpoint === "") { // * create a new browser

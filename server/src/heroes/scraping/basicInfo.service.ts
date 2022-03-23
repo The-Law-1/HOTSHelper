@@ -20,7 +20,7 @@ export class BasicInfoService {
 
         console.log("Went to page", urlString);
         const pageMetrics = await page.metrics();
-        console.log("Got page metrics, duration :", pageMetrics.TaskDuration)
+        console.log("Got page metrics, duration :", pageMetrics.TaskDuration);
 
         let tableToScrape = await page.$("#DataTables_Table_0");
         console.log("Scraped first table");
@@ -49,6 +49,7 @@ export class BasicInfoService {
                     role: 7,
                     gamesPlayed: 2,
                 });
+            
 
             // * replace spaces, dots, apostrophes
             let portraitUrlName = heroName.replace(/[. \']/g, "");
@@ -65,6 +66,9 @@ export class BasicInfoService {
                 role
             );
 
+            if (i === 0) {
+                console.log("Finished one loop");
+            }
             heroesInfo.push(heroInfo);
         }
         console.log("Got heroes basic info");

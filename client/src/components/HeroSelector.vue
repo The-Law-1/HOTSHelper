@@ -21,7 +21,7 @@
                             focus:outline-none
                             rounded
                         "
-                        :displayValue="(hero : any) => (hero.name as string)"
+                        :displayValue="(hero : any) => (heroesLoaded ? hero.name : 'Abathur')"
                         @change="(evt) => updateQuery(evt.target.value)"
                     />
                 </div>
@@ -41,7 +41,7 @@
                         v-for="hero in filteredHeroes"
                         as="template"
                         :key="hero.name"
-                        :value="hero.name"
+                        :value="hero"
                         v-slot="{ active }"
                     >
                         <li
@@ -65,7 +65,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/vue";
-import { getHeroes } from "../api/heroes";
 
 export default defineComponent({
     components: {
@@ -78,15 +77,20 @@ export default defineComponent({
         heroes : {
             type: Array,
             required: true
+        },
+        heroesLoaded : {
+            type: Boolean,
+            required: true
         }
     },
     data: function () {
         return {
-            selectedHero: "" as string,
+            selectedHero: "Abathur" as string,
             query: "" as string
         }
     },
     computed: {
+
         filteredHeroes() : Array<any> {
             let filteredHeroes = this.query === ""
                                 ? this.heroes

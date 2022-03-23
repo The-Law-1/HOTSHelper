@@ -65,6 +65,7 @@ export default defineComponent({
         // * update the store
         await this.getHeroesList();
 
+        // * get from the store
         const that:any = this;
         this.heroes = that.$store.state.heroes.heroesList;
 
