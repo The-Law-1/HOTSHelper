@@ -4,8 +4,11 @@ export class Hero {
 
     // ? ban rate/total games banned ?
 
-    // ? portrait URL ?
+    portraitUrl?: string = "";
+
     // ? description/pros/cons ? cf icyveins
+
+    role?: string = "";
 
     winRate?: number = 0;
 
@@ -21,7 +24,9 @@ export class Hero {
         winRate: number,
         winRatePerMap: { [key: string]: number } = {},
         winRatePerDuo: { [key: string]: number } = {},
-        winRatePerMatchup: { [key: string]: number } = {}
+        winRatePerMatchup: { [key: string]: number } = {},
+        portraitUrl: string = "",
+        role: string = ""
     ) {
         this.name = name;
         this.gamesPlayed = gamesPlayed;
@@ -29,5 +34,7 @@ export class Hero {
         this.winRatePerMap = winRatePerMap;
         this.winRatePerDuo = winRatePerDuo;
         this.winRatePerMatchup = winRatePerMatchup;
+        this.portraitUrl = portraitUrl;
+        this.role = role;
     }
 }

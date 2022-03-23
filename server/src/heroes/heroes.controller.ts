@@ -1,10 +1,25 @@
-import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
-import { ApiBody, ApiQuery } from "@nestjs/swagger";
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    Post,
+    Query,
+    Req,
+    Response,
+} from "@nestjs/common";
+import {
+    ApiBody,
+    ApiQuery,
+    ApiResponse,
+    ApiResponseProperty,
+} from "@nestjs/swagger";
 import { Hero } from "./dto/hero.dto";
 import { TeamsDto } from "./dto/teams.dto";
 import { DuoWinrateService } from "./duoWinrate/duoWinrate.service";
 import { MapWinrateService } from "./mapWinrate/mapWinrate.service";
 import { MatchupWinrateService } from "./matchupWinrate/matchupWinrate.service";
+import { BasicInfoService } from "./scraping/basicInfo.service";
 
 @Controller("heroes")
 export class HeroesController {
@@ -12,12 +27,12 @@ export class HeroesController {
         private readonly duoWinrateservice: DuoWinrateService,
         private readonly mapWinrateService: MapWinrateService,
         private readonly matchupWinrateService: MatchupWinrateService,
+        private readonly basicInfoService: BasicInfoService
     ) {}
 
-    // * it doesn't seem to matter if you write the endpoint with or without the parameters
-    // * prbably bc of query
-    // * keeping it for clarity though
-    @Get("/map/:name/:minSampleSize?/:selectionRange?")
+    // * the query parameters aren't visible in the URL somehow, and if I put URL params I'm having a hard time making them optional
+    // * maybe you could send the info in a specific DTO as a POST request
+    @Get("/mapwinrates")
     // * need to do this so swagger still shows the param
     @ApiQuery({
         name: "minSampleSize",
@@ -45,7 +60,8 @@ export class HeroesController {
         return heroChoices;
     }
 
-    @Post("/team/synergies/:minSampleSize?/:selectionRange?")
+    // * cf map request
+    @Post("/team/synergies")
     // * need to do this so swagger still shows the param
     @ApiQuery({
         name: "minSampleSize",
@@ -79,7 +95,7 @@ export class HeroesController {
         return heroChoices;
     }
 
-    @Post("/team/matchups/:minSampleSize?/:selectionRange?")
+    @Post("/team/matchups")
     // * need to do this so swagger still shows the param
     @ApiQuery({
         name: "minSampleSize",
@@ -102,8 +118,6 @@ export class HeroesController {
         @Query("minSampleSize") minSampleSize?: number,
         @Query("selectionRange") selectionRange?: number
     ): Promise<Array<Hero>> {
-        // ! you really only need an array of names for the ally team
-
         let heroChoices = await this.matchupWinrateService.getMatchupWinrates(
             heroTeams.allies,
             heroTeams.enemies,
@@ -112,5 +126,13 @@ export class HeroesController {
         );
 
         return heroChoices;
+    }
+
+    // * get all the heroes for dropdowns (names + portraits + role + winrate + games played, all but specifics really)
+    @Get("/")
+    async getAllHeroesBasicInfo(): Promise<Array<Hero>> {
+        let heroes = this.basicInfoService.scrapeHeroesBasic();
+
+        return heroes;
     }
 }

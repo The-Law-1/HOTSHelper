@@ -19,11 +19,11 @@ export class MatchupWinrateService {
     ): Promise<Array<Hero>> {
         let heroChoices = [];
 
-        const browser = await puppeteer.launch();
+        const browser = await this.heroScraping.GetBrowser();
         let samplesPerHero = 2;
 
         for await (const enemyName of enemyTeam) {
-            console.log("Fetching choices for hero ", );
+            console.log("Fetching choices for hero ");
 
             if (enemyName !== null) {
                 const { bestChoices, worstChoices } =
@@ -36,6 +36,10 @@ export class MatchupWinrateService {
                         enemyTeam
                     );
 
+                if (bestChoices.length < samplesPerHero || worstChoices.length) {
+                    console.log("Error");
+                    continue;
+                }
                 // get x best/worst elements for each ally
                 for (let j = 0; j < samplesPerHero; j++)
                     heroChoices.push(bestChoices[j]);
@@ -65,7 +69,18 @@ export class MatchupWinrateService {
         const page = await browser.newPage();
         // ! hero name needs to be properly written and capital letters at the start of words
         const urlString = `https://www.hotslogs.com/Sitewide/TalentDetails?Hero=${heroName}&Tab=winRateVsOtherHeroes`;
-        await page.goto(urlString);
+
+        try {
+            await page.goto(urlString);
+        } catch (error) {
+            console.log("Error navigating to page ", error);
+            await browser.close();
+            // * return an error
+            return ({
+                bestChoices: [],
+                worstChoices: []
+            });
+        }
 
         // make sure you get the correct table id and send it to the function
         let tableToScrape = await page.$("#DataTables_Table_0");
@@ -79,11 +94,13 @@ export class MatchupWinrateService {
         // exclude already picked heroes
         allHeroStats = allHeroStats.filter(
             (hero) =>
-                allyTeam.find((allyName) => allyName === hero.name) === undefined
+                allyTeam.find((allyName) => allyName === hero.name) ===
+                undefined
         );
         allHeroStats = allHeroStats.filter(
             (hero) =>
-                enemyTeam.find((enemyName) => enemyName === hero.name) === undefined
+                enemyTeam.find((enemyName) => enemyName === hero.name) ===
+                undefined
         );
 
         // * inverting the sorting because here less is more (enemy POV)
