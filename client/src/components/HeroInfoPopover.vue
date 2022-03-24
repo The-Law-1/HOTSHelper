@@ -1,21 +1,43 @@
 <template>
-    <Popover class="relative">
-        <PopoverButton ref="popoverbtn" @mouseenter="() => triggerPopover()">
-            <img class="inline rounded-full w-12" :src="heroData.portraitUrl"/>
+    <Popover class="relative" v-slot="{ open }">
+        <!-- <PopoverButton ref="popoverbtn" @mouseenter="() => triggerPopover()"> -->
+        <PopoverButton ref="popoverbtn">
+
+            <!-- // todo if winrate < 50 red color outline -->
+            <img :class="open ? 'w-24' : 'w-12'" class="inline rounded-full" :src="heroData.portraitUrl"/>
         </PopoverButton>
 
         <!-- <PopoverOverlay class="bg-purple-600 opacity-50 fixed inset-0"/> -->
 
-        <PopoverPanel class="z-10 bg-purple-600">
+        <PopoverPanel class="absolute z-10 w-64 bg-purple-600">
             <ul>
+                <li>
+                    {{ heroData.name }}
+                </li>
                 <li>
                     Role: {{ heroData.role }}
                 </li>
+                <!-- // todo if winrate < 50 red color text -->
                 <li>
-                    Overall winrate: {{ heroData.winRate }}
+                    Overall winrate: {{ heroData.winRate }}%
                 </li>
                 <li>
                     Games played: {{ heroData.gamesPlayed }}
+                </li>
+                <li v-if="heroData.winRatePerMap !== {}">
+                    <div v-for="(winRate, mapName, index) in heroData.winRatePerMap">
+                        {{ mapName }} win % : {{ winRate }} %
+                    </div>
+                </li>
+                <li v-if="heroData.winRatePerDuo !== {}">
+                    <div v-for="(winRate, heroName, index) in heroData.winRatePerDuo">
+                        win % with {{ heroName }} : {{ winRate }} %
+                    </div>
+                </li>
+                <li v-if="heroData.winRatePerMatchup !== {}">
+                    <div v-for="(winRate, heroName, index) in heroData.winRatePerMatchup">
+                        win % against {{ heroName }} : {{ winRate }} %
+                    </div>
                 </li>
             </ul>
 

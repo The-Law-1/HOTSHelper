@@ -25,13 +25,12 @@ export class MapWinrateService {
         const browser = await this.heroScraping.GetBrowser();
 
         const page = await browser.newPage();
-        // ! the map needs to be properly written and capital letters at the start of words
 
         // todo use promise.race to either load the page first or find the element and move on
         // * the context gets destroyed when the page loads lol
         let urlString = `https://www.hotslogs.com/Sitewide/HeroAndMapStatistics?Map=${mapName}`;
         try {
-            await page.goto(urlString);
+            await page.goto(urlString, {timeout: 10000, waitUntil: "domcontentloaded"});
         } catch (error) {
             console.log("Error navigating to page ", error);
             await browser.close();

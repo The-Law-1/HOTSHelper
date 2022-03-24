@@ -27,6 +27,8 @@
                 </div>
                 <ComboboxOptions
                     class="
+                        absolute
+                        w-72
                         z-10
                         bg-white
                         rounded-md
@@ -78,17 +80,17 @@ export default defineComponent({
     },
     data: function () {
         return {
-            selectedMap: "Alterac Pass" as string,
+            selectedMap: "" as string,
             query: "" as string,
             maps: [
                 "Alterac Pass",
-                "Garden Of Terror",
+                "Garden of Terror",
                 "Hanamura Temple",
                 "Volskaya Foundry",
-                "Towers Of Doom",
+                "Towers of Doom",
                 "Infernal Shrines",
-                "Battlefield Of Eternity",
-                "Tomb Of The Spider Queen",
+                "Battlefield of Eternity",
+                "Tomb of the Spider Queen",
                 "Sky Temple",
                 "Blackheart's Bay",
                 "Dragon Shire",
@@ -96,6 +98,12 @@ export default defineComponent({
                 "Braxis Holdout",
                 "Warhead Junction"
             ] as Array<string>
+        }
+    },
+    watch: {
+        selectedMap: function() {
+            // todo emit an event here
+            this.$emit("mapUpdated", this.selectedMap);
         }
     },
     computed: {
