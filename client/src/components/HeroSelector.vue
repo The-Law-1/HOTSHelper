@@ -1,7 +1,7 @@
 <template>
     <div class="pt-10">
         <!-- // * if you want to stop moving the whole page, set a max height but then z-index issues -->
-        <div class="w-72">
+        <div class="w-72 max-h-12">
 
             <Combobox v-model="selectedHero">
                 <div
@@ -22,12 +22,14 @@
                             rounded
                             z-0
                         "
-                        :displayValue="(hero : any) => (heroesLoaded ? hero.name : 'Abathur')"
+                        :displayValue="(hero : any) => (heroesLoaded ? hero.name : '')"
                         @change="(evt) => updateQuery(evt.target.value)"
                     />
                 </div>
                 <ComboboxOptions
                     class="
+                        w-72
+                        absolute
                         z-10
                         bg-white
                         rounded-md

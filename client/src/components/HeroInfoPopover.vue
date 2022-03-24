@@ -1,15 +1,15 @@
 <template>
-    <Popover class="relative">
+    <Popover class="relative" v-slot="{ open }">
         <!-- <PopoverButton ref="popoverbtn" @mouseenter="() => triggerPopover()"> -->
         <PopoverButton ref="popoverbtn">
 
             <!-- // todo if winrate < 50 red color outline -->
-            <img class="inline rounded-full w-12" :src="heroData.portraitUrl"/>
+            <img :class="open ? 'w-24' : 'w-12'" class="inline rounded-full" :src="heroData.portraitUrl"/>
         </PopoverButton>
 
         <!-- <PopoverOverlay class="bg-purple-600 opacity-50 fixed inset-0"/> -->
 
-        <PopoverPanel class="z-10 bg-purple-600">
+        <PopoverPanel class="absolute z-10 w-64 bg-purple-600">
             <ul>
                 <li>
                     {{ heroData.name }}

@@ -27,7 +27,9 @@
                 </div>
                 <ComboboxOptions
                     class="
-                        z-20
+                        absolute
+                        w-72
+                        z-10
                         bg-white
                         rounded-md
                         shadow-lg
@@ -78,7 +80,7 @@ export default defineComponent({
     },
     data: function () {
         return {
-            selectedMap: "Alterac Pass" as string,
+            selectedMap: "" as string,
             query: "" as string,
             maps: [
                 "Alterac Pass",

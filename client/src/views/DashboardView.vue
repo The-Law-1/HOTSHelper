@@ -23,7 +23,8 @@
                     <button v-if="heroes.length > 0 && selectedMap.length > 0" @click="getHeroesForMap()">
                         Get map winrates
                     </button>
-                    <HeroSuggestions :hero-suggestions="mapWinrates"/>
+                    <HeroSuggestions v-if="mapWinrates.length > 0" :hero-suggestions="mapWinrates"/>
+                    <LoadingSpinner v-if="loadingMapWinrates"/>
                 </div>
                 <div>
                     Hero synergies
@@ -45,6 +46,7 @@ import TeamBuilder from "../components/TeamBuilder.vue";
 import { mapActions } from 'vuex';
 import { getHeroesForMap } from "../api/heroes";
 import HeroSuggestions from "../components/HeroSuggestions.vue";
+import LoadingSpinner from "../components/LoadingSpinner.vue";
 
 export default defineComponent({
 
@@ -52,7 +54,8 @@ export default defineComponent({
     HelloWorldButtonVue,
     MapSelection,
     TeamBuilder,
-    HeroSuggestions
+    HeroSuggestions,
+    LoadingSpinner
 },
     data: function () {
         return {
@@ -60,7 +63,9 @@ export default defineComponent({
             alliedTeam: [] as Array<any>,
             enemyTeam: [] as Array<any>,
             selectedMap: "" as String,
-            mapWinrates: [] as Array<any>
+            mapWinrates: [] as Array<any>,
+
+            loadingMapWinrates: false as boolean
         }
     },
     computed: {
@@ -73,6 +78,8 @@ export default defineComponent({
         async getHeroesForMap() {
             // * update the store
             console.log("Getting winrates for map ", this.selectedMap);
+
+            this.loadingMapWinrates = true;
 
             await this.getHeroWinratesForMap(this.selectedMap);
 
@@ -97,6 +104,7 @@ export default defineComponent({
             }
 
             console.log(heroWinrates);
+            this.loadingMapWinrates = false;
             this.mapWinrates = heroWinrates;
         }
     },

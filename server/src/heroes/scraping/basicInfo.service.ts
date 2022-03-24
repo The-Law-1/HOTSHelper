@@ -59,7 +59,7 @@ export class BasicInfoService {
             
 
             // * replace spaces, dots, apostrophes
-            let portraitUrlName = heroName.replace(/[. \']/g, "");
+            let portraitUrlName = heroName.replace(/[. \'-]/g, "");
             let portraitUrl = `https://hotslogs.com/Images/Heroes/Portraits/${portraitUrlName}.png`;
 
             let heroInfo = new Hero(
