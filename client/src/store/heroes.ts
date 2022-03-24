@@ -17,7 +17,6 @@ const heroes = {
 
             // todo error handling etc...
 
-            console.log("This is the store saying I got this", res);
             commit("getHeroesList", res.data);
         }
     }

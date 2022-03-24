@@ -22,7 +22,6 @@ const map = {
 
             // todo error handling etc...
 
-            console.log("This is the store saying I got this", res);
             commit("getHeroWinrates", res.data);
         }
     }

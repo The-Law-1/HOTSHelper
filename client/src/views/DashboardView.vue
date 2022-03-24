@@ -20,7 +20,7 @@
             <TeamBuilder :heroes="heroes"/>
             <div>
                 <div>
-                    <button v-if="selectedMap.length > 0" @click="getHeroesForMap()">
+                    <button v-if="heroes.length > 0 && selectedMap.length > 0" @click="getHeroesForMap()">
                         Get map winrates
                     </button>
                     Hero choices for map
@@ -57,7 +57,8 @@ export default defineComponent({
             heroes: [] as Array<any>,
             alliedTeam: [] as Array<any>,
             enemyTeam: [] as Array<any>,
-            selectedMap: "" as String
+            selectedMap: "" as String,
+            mapWinrates: [] as Array<any>
         }
     },
     computed: {
@@ -69,14 +70,30 @@ export default defineComponent({
 
         async getHeroesForMap() {
             // * update the store
+            console.log("Getting winrates for map ", this.selectedMap);
 
             await this.getHeroWinratesForMap(this.selectedMap);
 
             const that:any = this;
             let heroWinrates = that.$store.state.map.heroWinrates;
 
-            console.log("Got hero winrates for map : ", this.selectedMap);
+            // * the hero's role is not accessible on the map winrate thing
+            // * a bit expensive for not much, but it's a small loop
+            if (this.heroes.length > 0) {
+                for (let i = 0; i < heroWinrates.length; i++) {
+                    let mapWinrateHero = heroWinrates[i];
+
+                    let heroIndex = this.heroes.findIndex((hero : any) => hero.name === mapWinrateHero.name);
+                    if (heroIndex !== -1) {
+
+                        mapWinrateHero.role = this.heroes[heroIndex].role;
+                    }
+                    heroWinrates[i] = mapWinrateHero;
+                }
+            }
+
             console.log(heroWinrates);
+            this.mapWinrates = heroWinrates;
         }
     },
     created: async function () {

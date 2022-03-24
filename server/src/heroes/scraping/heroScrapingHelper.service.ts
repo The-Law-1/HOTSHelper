@@ -81,11 +81,19 @@ export class HeroScrapingHelper implements OnApplicationShutdown {
                     winRate: winrateIndex,
                 });
 
+                // * replace spaces, dots, apostrophes
+                let portraitUrlName = heroName.replace(/[. \']/g, "");
+                let portraitUrl = `https://hotslogs.com/Images/Heroes/Portraits/${portraitUrlName}.png`;
+
                 // todo get more info maybe, like portrait or smth, better too much than not enough
                 let scrapedHero = new Hero(
                     heroName,
                     parseInt(sampleSize),
-                    parseFloat(winRate)
+                    parseFloat(winRate),
+                    {},
+                    {},
+                    {},
+                    portraitUrl
                 );
                 heroStats.push(scrapedHero);
             }
