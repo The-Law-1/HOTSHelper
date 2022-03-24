@@ -61,7 +61,8 @@
                     </ComboboxOption>
                 </ComboboxOptions>
                 <span v-if="selectedHero && heroesLoaded">
-                    <img class="inline rounded-full w-12" :src="selectedHero.portraitUrl"/>
+                    <HeroInfoPopover :heroData="selectedHero"/>
+                    <!-- <img class="inline rounded-full w-12" :src="selectedHero.portraitUrl"/> -->
                 </span>
             </Combobox>
         </div>
@@ -73,14 +74,16 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/vue";
+import HeroInfoPopover from "./HeroInfoPopover.vue";
 
 export default defineComponent({
     components: {
-        Combobox,
-        ComboboxInput,
-        ComboboxOptions,
-        ComboboxOption
-    },
+    Combobox,
+    ComboboxInput,
+    ComboboxOptions,
+    ComboboxOption,
+    HeroInfoPopover
+},
     props: {
         heroes : {
             type: Array,
