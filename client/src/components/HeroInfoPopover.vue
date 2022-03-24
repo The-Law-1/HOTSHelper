@@ -1,6 +1,9 @@
 <template>
     <Popover class="relative">
-        <PopoverButton ref="popoverbtn" @mouseenter="() => triggerPopover()">
+        <!-- <PopoverButton ref="popoverbtn" @mouseenter="() => triggerPopover()"> -->
+        <PopoverButton ref="popoverbtn">
+
+            <!-- // todo if winrate < 50 red color outline -->
             <img class="inline rounded-full w-12" :src="heroData.portraitUrl"/>
         </PopoverButton>
 
@@ -9,13 +12,32 @@
         <PopoverPanel class="z-10 bg-purple-600">
             <ul>
                 <li>
-                    Role: {{ heroData.role }}
+                    {{ heroData.name }}
                 </li>
                 <li>
-                    Overall winrate: {{ heroData.winRate }}
+                    Role: {{ heroData.role }}
+                </li>
+                <!-- // todo if winrate < 50 red color text -->
+                <li>
+                    Overall winrate: {{ heroData.winRate }}%
                 </li>
                 <li>
                     Games played: {{ heroData.gamesPlayed }}
+                </li>
+                <li v-if="heroData.winRatePerMap !== {}">
+                    <div v-for="(winRate, mapName, index) in heroData.winRatePerMap">
+                        {{ mapName }} win % : {{ winRate }} %
+                    </div>
+                </li>
+                <li v-if="heroData.winRatePerDuo !== {}">
+                    <div v-for="(winRate, heroName, index) in heroData.winRatePerDuo">
+                        win % with {{ heroName }} : {{ winRate }} %
+                    </div>
+                </li>
+                <li v-if="heroData.winRatePerMatchup !== {}">
+                    <div v-for="(winRate, heroName, index) in heroData.winRatePerMatchup">
+                        win % against {{ heroName }} : {{ winRate }} %
+                    </div>
                 </li>
             </ul>
 

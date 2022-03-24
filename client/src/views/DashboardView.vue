@@ -23,6 +23,7 @@
                     <button v-if="heroes.length > 0 && selectedMap.length > 0" @click="getHeroesForMap()">
                         Get map winrates
                     </button>
+                    <HeroSuggestions :hero-suggestions="mapWinrates"/>
                     Hero choices for map
                 </div>
                 <div>
@@ -44,14 +45,16 @@ import MapSelection from "../components/MapSelection.vue";
 import TeamBuilder from "../components/TeamBuilder.vue";
 import { mapActions } from 'vuex';
 import { getHeroesForMap } from "../api/heroes";
+import HeroSuggestions from "../components/HeroSuggestions.vue";
 
 export default defineComponent({
 
     components: {
-        HelloWorldButtonVue,
-        MapSelection,
-        TeamBuilder
-    },
+    HelloWorldButtonVue,
+    MapSelection,
+    TeamBuilder,
+    HeroSuggestions
+},
     data: function () {
         return {
             heroes: [] as Array<any>,
@@ -87,6 +90,8 @@ export default defineComponent({
                     if (heroIndex !== -1) {
 
                         mapWinrateHero.role = this.heroes[heroIndex].role;
+                        // * set the overall winrate, the specifics will be in the per-case object
+                        mapWinrateHero.winRate = this.heroes[heroIndex].winRate;
                     }
                     heroWinrates[i] = mapWinrateHero;
                 }
