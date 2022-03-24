@@ -17,7 +17,7 @@ export class BasicInfoService {
         const page = await browser.newPage();
         const urlString = `https://www.hotslogs.com/Default`;
         try {
-            await page.goto(urlString);
+            await page.goto(urlString, {timeout: 10000, waitUntil: "domcontentloaded"});
         } catch (error) {
             console.log("Error navigating to page ", error);
             await browser.close();
