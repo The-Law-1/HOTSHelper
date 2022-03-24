@@ -27,7 +27,7 @@
                 </div>
                 <ComboboxOptions
                     class="
-                        z-10
+                        z-20
                         bg-white
                         rounded-md
                         shadow-lg
@@ -96,6 +96,12 @@ export default defineComponent({
                 "Braxis Holdout",
                 "Warhead Junction"
             ] as Array<string>
+        }
+    },
+    watch: {
+        selectedMap: function() {
+            // todo emit an event here
+            this.$emit("mapUpdated", this.selectedMap);
         }
     },
     computed: {

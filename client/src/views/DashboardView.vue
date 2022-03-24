@@ -7,7 +7,7 @@
         <!-- // todo this will need to emit an event with the map's name so we can send to server -->
         <!-- // todo also when you scrape the maps like a big boy pass them as a prop here -->
 
-        <MapSelection/>
+        <MapSelection @map-updated="(mapName) => selectedMap = mapName"/>
 
         <div
             class="
@@ -20,6 +20,9 @@
             <TeamBuilder :heroes="heroes"/>
             <div>
                 <div>
+                    <button v-if="selectedMap.length > 0" @click="getHeroesForMap()">
+                        Get map winrates
+                    </button>
                     Hero choices for map
                 </div>
                 <div>
@@ -39,9 +42,8 @@ import { defineComponent } from "vue";
 import HelloWorldButtonVue from "../components/HelloWorldButton.vue";
 import MapSelection from "../components/MapSelection.vue";
 import TeamBuilder from "../components/TeamBuilder.vue";
-import { getHeroes } from "../api/heroes";
 import { mapActions } from 'vuex';
-
+import { getHeroesForMap } from "../api/heroes";
 
 export default defineComponent({
 
@@ -52,15 +54,30 @@ export default defineComponent({
     },
     data: function () {
         return {
-            heroes: [] as Array<any>
+            heroes: [] as Array<any>,
+            alliedTeam: [] as Array<any>,
+            enemyTeam: [] as Array<any>,
+            selectedMap: "" as String
         }
     },
     computed: {
 
     },
     methods: {
-        ...mapActions("heroes", ["getHeroesList"])
+        ...mapActions("heroes", ["getHeroesList"]),
+        ...mapActions("map", ["getHeroWinratesForMap"]),
 
+        async getHeroesForMap() {
+            // * update the store
+
+            await this.getHeroWinratesForMap(this.selectedMap);
+
+            const that:any = this;
+            let heroWinrates = that.$store.state.map.heroWinrates;
+
+            console.log("Got hero winrates for map : ", this.selectedMap);
+            console.log(heroWinrates);
+        }
     },
     created: async function () {
         // * update the store

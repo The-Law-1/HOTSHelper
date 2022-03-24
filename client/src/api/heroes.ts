@@ -7,6 +7,6 @@ const heroesAPI = axios.create({
     baseURL: `${serverHost}${serverPort}/heroes`
 });
 
-export const getHeroesForMap = async (queryParams : any) => await heroesAPI.get(`/map/`, {params: queryParams});
+export const getHeroesForMap = async (queryParams : any) => await heroesAPI.get(`/mapwinrates/`, {params: queryParams});
 
 export const getHeroes = async () : Promise<any> => await heroesAPI.get(`/`);
