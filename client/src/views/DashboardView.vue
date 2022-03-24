@@ -24,7 +24,6 @@
                         Get map winrates
                     </button>
                     <HeroSuggestions :hero-suggestions="mapWinrates"/>
-                    Hero choices for map
                 </div>
                 <div>
                     Hero synergies
