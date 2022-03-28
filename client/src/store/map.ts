@@ -1,12 +1,13 @@
 import { getHeroesForMap } from '../api/heroes';
+import { Hero } from '../entities/hero';
 
 const map = {
     namespaced: true,
     state: {
-        heroWinrates : [] as Array<any>
+        heroWinrates : [] as Array<Hero>
     },
     mutations: {
-        getHeroWinrates(state: any, heroWinrates : Array<any>) {
+        getHeroWinrates(state: any, heroWinrates : Array<Hero>) {
             state.heroWinrates = heroWinrates;
         }
     },

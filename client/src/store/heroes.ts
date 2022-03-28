@@ -1,12 +1,13 @@
 import { getHeroes } from "../api/heroes";
+import { Hero } from "../entities/hero";
 
 const heroes = {
     namespaced: true,
     state: {
-        heroesList : [] as Array<any>
+        heroesList : [] as Array<Hero>
     },
     mutations: {
-        getHeroesList(state: any, heroesList : Array<any>) {
+        getHeroesList(state: any, heroesList : Array<Hero>) {
             state.heroesList = heroesList;
         }
     },

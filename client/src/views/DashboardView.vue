@@ -17,7 +17,7 @@
             "
         >
             <!-- // todo the team builders will probably emit events to build the request body -->
-            <TeamBuilder :heroes="heroes"/>
+            <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setAlliedTeam(team)"/>
             <div>
                 <div>
                     <button v-if="heroes.length > 0 && selectedMap.length > 0" @click="getHeroesForMap()">
@@ -27,13 +27,15 @@
                     <LoadingSpinner v-if="loadingMapWinrates"/>
                 </div>
                 <div>
-                    Hero synergies
+                    <button v-if="alliedTeam.length > 0" @click="getHeroesForMap()">
+                        Get hero synergies
+                    </button>
                 </div>
                 <div>
                     Hero matchups
                 </div>
             </div>
-            <TeamBuilder :heroes="heroes"/>
+            <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setEnemyTeam(team)"/>
         </div>
     </div>
 </template>
@@ -44,9 +46,9 @@ import HelloWorldButtonVue from "../components/HelloWorldButton.vue";
 import MapSelection from "../components/MapSelection.vue";
 import TeamBuilder from "../components/TeamBuilder.vue";
 import { mapActions } from 'vuex';
-import { getHeroesForMap } from "../api/heroes";
 import HeroSuggestions from "../components/HeroSuggestions.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
+import { Hero } from "../entities/hero";
 
 export default defineComponent({
 
@@ -59,11 +61,11 @@ export default defineComponent({
 },
     data: function () {
         return {
-            heroes: [] as Array<any>,
-            alliedTeam: [] as Array<any>,
-            enemyTeam: [] as Array<any>,
+            heroes: [] as Array<Hero>,
+            alliedTeam: [] as Array<Hero>,
+            enemyTeam: [] as Array<Hero>,
             selectedMap: "" as String,
-            mapWinrates: [] as Array<any>,
+            mapWinrates: [] as Array<Hero>,
 
             loadingMapWinrates: false as boolean
         }
@@ -74,7 +76,22 @@ export default defineComponent({
     methods: {
         ...mapActions("heroes", ["getHeroesList"]),
         ...mapActions("map", ["getHeroWinratesForMap"]),
+        ...mapActions("synergy", ["getTeamSynergies"]),
 
+        setAlliedTeam(newTeam: Array<Hero>) {
+            //  deep copy just in case
+            this.alliedTeam = [...newTeam];
+
+            console.log("Allied team updated ", this.alliedTeam);
+
+            // todo call get team synergies, but I'd like to confirm the chain of events
+        },
+        setEnemyTeam(newTeam: Array<Hero>) {
+            this.enemyTeam = [...newTeam];
+
+            console.log("Enemy team updated ", this.alliedTeam);
+            // todo call get team matchups, but I'd like to confirm the chain of events
+        },
         async getHeroesForMap() {
             // * update the store
             console.log("Getting winrates for map ", this.selectedMap);
@@ -92,7 +109,7 @@ export default defineComponent({
                 for (let i = 0; i < heroWinrates.length; i++) {
                     let mapWinrateHero = heroWinrates[i];
 
-                    let heroIndex = this.heroes.findIndex((hero : any) => hero.name === mapWinrateHero.name);
+                    let heroIndex = this.heroes.findIndex((hero : Hero) => hero.name === mapWinrateHero.name);
                     if (heroIndex !== -1) {
 
                         mapWinrateHero.role = this.heroes[heroIndex].role;

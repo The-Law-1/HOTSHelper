@@ -6,7 +6,10 @@
             <LoadingSpinner/>
         </div>
         <div v-for="i in 5" :key="('HeroSelector' + i)">
-            <HeroSelector :heroes="heroes" :heroes-loaded="heroesLoaded"/>
+            <HeroSelector
+                :heroes="heroes"
+                :heroes-loaded="heroesLoaded"
+                @hero-selected="(hero: any) => newHeroChosen(i, hero)"/>
         </div>
     </div>
 </template>
@@ -22,6 +25,18 @@ export default defineComponent({
         heroes : {
             type: Array,
             required: true
+        }
+    },
+    data: function() {
+
+        return ({
+            currentTeam: [] as Array<any>
+        });
+    },
+    methods: {
+        newHeroChosen(index: number, hero : any) {
+            this.currentTeam[index] = hero;
+            this.$emit("teamUpdated", this.currentTeam);
         }
     },
     computed: {
