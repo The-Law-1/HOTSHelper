@@ -27,9 +27,11 @@
                     <LoadingSpinner v-if="loadingMapWinrates"/>
                 </div>
                 <div>
-                    <button v-if="alliedTeam.length > 0" @click="getHeroesForMap()">
+                    <button v-if="alliedTeam.length > 0" @click="getHeroSynergies()">
                         Get hero synergies
                     </button>
+                    <HeroSuggestions v-if="heroSynergies.length > 0" :hero-suggestions="heroSynergies"/>
+                    <LoadingSpinner v-if="loadingHeroSynergies"/>
                 </div>
                 <div>
                     Hero matchups
@@ -65,9 +67,13 @@ export default defineComponent({
             alliedTeam: [] as Array<Hero>,
             enemyTeam: [] as Array<Hero>,
             selectedMap: "" as String,
-            mapWinrates: [] as Array<Hero>,
 
-            loadingMapWinrates: false as boolean
+            mapWinrates: [] as Array<Hero>,
+            heroSynergies: [] as Array<Hero>,
+
+            loadingMapWinrates: false as boolean,
+            loadingHeroSynergies: false as boolean,
+            loadingHeroMatchups: false as boolean
         }
     },
     computed: {
@@ -83,14 +89,50 @@ export default defineComponent({
             this.alliedTeam = [...newTeam];
 
             console.log("Allied team updated ", this.alliedTeam);
-
-            // todo call get team synergies, but I'd like to confirm the chain of events
         },
         setEnemyTeam(newTeam: Array<Hero>) {
             this.enemyTeam = [...newTeam];
 
             console.log("Enemy team updated ", this.alliedTeam);
-            // todo call get team matchups, but I'd like to confirm the chain of events
+        },
+        async getHeroSynergies() {
+            // * update the store
+            console.log("Getting synergies for team ", this.alliedTeam);
+
+            this.loadingHeroSynergies = true;
+
+            let alliedTeamNames = this.alliedTeam.map(hero => hero.name);
+            let enemyTeamNames = this.enemyTeam.map(hero => hero.name);
+
+            console.log("Allied names ", alliedTeamNames);
+            console.log("Enemy names ", enemyTeamNames);
+
+            // todo send the query params and all
+            await this.getTeamSynergies(alliedTeamNames, enemyTeamNames);
+
+            const that:any = this;
+            let heroSynergies = that.$store.state.synergy.synergiesList;
+
+            // * the hero's role is not accessible on the map winrate thing
+            // * a bit expensive for not much, but it's a small loop
+            if (this.heroes.length > 0) {
+                for (let i = 0; i < heroSynergies.length; i++) {
+                    let synergyHero = heroSynergies[i];
+
+                    let heroIndex = this.heroes.findIndex((hero : Hero) => hero.name === synergyHero.name);
+                    if (heroIndex !== -1) {
+
+                        // * set the overall winrate, the specifics will be in the per-case object
+                        synergyHero.role = this.heroes[heroIndex].role;
+                        synergyHero.winRate = this.heroes[heroIndex].winRate;
+                    }
+                    heroSynergies[i] = synergyHero;
+                }
+            }
+
+            console.log(heroSynergies);
+            this.loadingHeroSynergies = false;
+            this.heroSynergies = heroSynergies;
         },
         async getHeroesForMap() {
             // * update the store

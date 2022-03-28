@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { Browser, ElementHandle, Page } from "puppeteer";
 import { Hero } from "../dto/hero.dto";
 import {
+    GameMode,
     HeroScrapingHelper,
     Sorting,
 } from "../scraping/heroScrapingHelper.service";
@@ -22,7 +23,9 @@ export class DuoWinrateService {
         const browser = await this.heroScraping.GetBrowser();
         let samplesPerHero = 2;
 
-        for await (const allyName of allyTeam) {
+
+        for (let i = 0; i < allyTeam.length; i++) {
+            const allyName = allyTeam[i];
             console.log("Fetching choices for hero ", allyName);
 
             if (allyName !== null) {
@@ -37,8 +40,10 @@ export class DuoWinrateService {
                     );
 
                 // get x best/worst elements for each ally
-                if (bestChoices.length < samplesPerHero || worstChoices.length) {
-                    console.log("Error");
+                if (bestChoices.length < samplesPerHero || worstChoices.length < samplesPerHero) {
+                    console.log("Error with choices:");
+                    console.log("Best choices ", bestChoices);
+                    console.log("Worst choices ", worstChoices);
                     continue;
                 }
 
@@ -67,9 +72,13 @@ export class DuoWinrateService {
         let bestChoices = [];
         let worstChoices = [];
 
+        // * quickmatch by default but you gotta be able to change this
+        let gameMode = GameMode.QUICKMATCH;
+        console.log("Using game Mode ", gameMode);
+
         const page = await browser.newPage();
         // ! hero name needs to be properly written and capital letters at the start of words
-        const urlString = `https://www.hotslogs.com/Sitewide/TalentDetails?Hero=${heroName}&Tab=winRateWithOtherHeroes`;
+        const urlString = `https://www.hotslogs.com/Sitewide/TalentDetails?GameMode=${gameMode}&Hero=${heroName}&Tab=winRateWithOtherHeroes`;
         try {
             await page.goto(urlString);
         } catch (error) {
@@ -84,11 +93,15 @@ export class DuoWinrateService {
         // make sure you get the correct table id and send it to the function
         let tableToScrape = await page.$("#DataTables_Table_1");
 
+        console.log("Going in with min sample size: ", minSampleSize);
+
         allHeroStats = await this.heroScraping.scrapeGenericTable(
             tableToScrape,
             3,
             minSampleSize
         );
+
+        console.log("All hero stats before filter: ", allHeroStats.length);
 
         // exclude already picked heroes
         allHeroStats = allHeroStats.filter(
@@ -101,6 +114,8 @@ export class DuoWinrateService {
                 enemyTeam.find((enemyName) => enemyName === hero.name) ===
                 undefined
         );
+
+
 
         // get only the best choices
         bestChoices = this.heroScraping.filterHeroesWinrate(

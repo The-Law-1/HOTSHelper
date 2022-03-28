@@ -4,7 +4,7 @@
         <PopoverButton ref="popoverbtn">
 
             <!-- // todo if winrate < 50 red color outline -->
-            <img :class="open ? 'w-24' : 'w-12'" class="inline rounded-full" :src="heroData.portraitUrl"/>
+            <img :class="open ? 'w-12' : 'w-12'" class="inline rounded-full" :src="heroData.portraitUrl"/>
         </PopoverButton>
 
         <!-- <PopoverOverlay class="bg-purple-600 opacity-50 fixed inset-0"/> -->

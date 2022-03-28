@@ -2,6 +2,7 @@ import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { AppModule } from "./app.module";
+import { ValidationPipe } from "@nestjs/common";
 
 const port = process.env.SERVER_PORT || 3001;
 
@@ -22,6 +23,14 @@ async function bootstrap() {
     // * this could have been good if the single browser trick worked
     // * but since it doesn't it's just bad for performance I think
     // app.enableShutdownHooks();
+
+    // * transform our payloads into our dtos
+    // * https://stackoverflow.com/questions/56166716/nestjs-set-type-of-body
+    app.useGlobalPipes(
+        new ValidationPipe({
+            transform: true,
+        })
+    )
 
     await app.listen(port);
 }

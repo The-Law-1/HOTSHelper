@@ -7,12 +7,20 @@ const teamssAPI = axios.create({
     baseURL: `${serverHost}${serverPort}/heroes/team`
 });
 
-export const getSynergies = async (body:any, queryParams:any) => teamssAPI.post("/synergies", {
-    body: body,
-    params: queryParams
-});
+export const getSynergies = async (alliedNames:Array<string>, enemyNames: Array<string>, queryParams:any) => teamssAPI.post("/synergies", {
+    allies: alliedNames,
+    enemies: enemyNames
+    },
+    {
+        params: queryParams
+    }
+);
 
-export const getMatchups = async (body:any, queryParams:any) => teamssAPI.post("/matchups", {
-    body: body,
-    params: queryParams
-});
+export const getMatchups = async (alliedNames:Array<string>, enemyNames: Array<string>, queryParams:any) => teamssAPI.post("/matchups", {
+    allies: alliedNames,
+    enemies: enemyNames
+    },
+    {
+        params: queryParams
+    }
+);

@@ -12,15 +12,18 @@ const synergy = {
         }
     },
     actions: {
-        async getTeamSynergies({commit, state} : any, alliedTeam: Array<Hero>, enemyTeam: Array<Hero>, minSampleSize: number = 35, selectionRange: number = 8)
+        async getTeamSynergies({commit, state} : any, alliedTeam: Array<string>, enemyTeam: Array<string>, minSampleSize: number = 35, selectionRange: number = 8)
         {
-            let body = {
-                "allies": alliedTeam,
-                "enemies": enemyTeam
-            };
-            const res = await getSynergies(body, {alliedTeam, minSampleSize});
+            const query = {
+                "minSampleSize" : minSampleSize,
+                "selectionRange" : selectionRange
+            }
+
+            const res = await getSynergies(alliedTeam, enemyTeam, query);
 
             // todo error handling
+
+            console.log("Store retrieved data ", res.data);
 
             commit("getTeamSynergies", res.data);
         }

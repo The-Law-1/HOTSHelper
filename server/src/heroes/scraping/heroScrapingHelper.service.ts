@@ -10,6 +10,11 @@ export enum Sorting {
     Descending,
 }
 
+export enum GameMode {
+    STORMLEAGUE = 0,
+    QUICKMATCH = 3
+}
+
 @Injectable()
 export class HeroScrapingHelper implements OnApplicationShutdown {
     static browserEndpoint: string = "";
@@ -76,6 +81,7 @@ export class HeroScrapingHelper implements OnApplicationShutdown {
             );
 
             if (parseInt(sampleSize) >= minSampleSize) {
+
                 const { heroName, winRate } = await this.parseRow(rowChildren, {
                     heroName: 1,
                     winRate: winrateIndex,

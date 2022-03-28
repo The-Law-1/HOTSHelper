@@ -84,10 +84,14 @@ export class HeroesController {
         @Query("minSampleSize") minSampleSize?: number,
         @Query("selectionRange") selectionRange?: number
     ): Promise<Array<Hero>> {
+        console.log("In controller got body: ", heroTeams);
+
+        console.log("controller getting sample size ", minSampleSize);
+
         // ! you really only need an array of names for the ally team
         let heroChoices = await this.duoWinrateservice.getSynergyWinrates(
             heroTeams.allies,
-            heroTeams.enemies,
+            heroTeams.enemies === undefined ? [] : heroTeams.enemies,
             minSampleSize,
             selectionRange
         );

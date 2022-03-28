@@ -56,7 +56,7 @@
 
                                 {{ hero.name }}
                                 <span v-if="active">
-                                    <img class=" inline rounded-full w-12" :src="hero.portraitUrl"/>
+                                    <img class="inline rounded-full w-12" :src="hero.portraitUrl"/>
                                 </span>
                             </li>
                         </div>
@@ -64,7 +64,6 @@
                 </ComboboxOptions>
                 <span v-if="selectedHero && heroesLoaded">
                     <HeroInfoPopover :heroData="selectedHero"/>
-                    <!-- <img class="inline rounded-full w-12" :src="selectedHero.portraitUrl"/> -->
                 </span>
             </Combobox>
         </div>
@@ -97,7 +96,7 @@ export default defineComponent({
     },
     data: function () {
         return {
-            selectedHero: Hero,
+            selectedHero: {} as Hero,
             query: "" as string
         }
     },
@@ -115,7 +114,7 @@ export default defineComponent({
     watch: {
         selectedHero(val: Hero, oldVal : Hero) {
             console.log(`Selected hero went from ${oldVal.name} to ${val.name}`);
-            this.$emit("heroSelected", val.name);
+            this.$emit("heroSelected", val);
         }
     },
     methods: {
