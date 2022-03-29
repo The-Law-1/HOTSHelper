@@ -56,7 +56,7 @@
 
                                 {{ hero.name }}
                                 <span v-if="active">
-                                    <img class=" inline rounded-full w-12" :src="hero.portraitUrl"/>
+                                    <img class="inline rounded-full w-12" :src="hero.portraitUrl"/>
                                 </span>
                             </li>
                         </div>
@@ -64,7 +64,6 @@
                 </ComboboxOptions>
                 <span v-if="selectedHero && heroesLoaded">
                     <HeroInfoPopover :heroData="selectedHero"/>
-                    <!-- <img class="inline rounded-full w-12" :src="selectedHero.portraitUrl"/> -->
                 </span>
             </Combobox>
         </div>
@@ -72,9 +71,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/vue";
 import HeroInfoPopover from "./HeroInfoPopover.vue";
+import { Hero } from "../entities/hero";
 
 export default defineComponent({
     components: {
@@ -96,22 +96,25 @@ export default defineComponent({
     },
     data: function () {
         return {
-            selectedHero: {} as any,
+            selectedHero: {} as Hero,
             query: "" as string
         }
     },
     computed: {
-        filteredHeroes() : Array<any> {
+        filteredHeroes() : Array<Hero> {
             let filteredHeroes = this.query === ""
                                 ? this.heroes
-                                : this.heroes.filter((hero:any) => {
-                                    let heroName = hero.name.toLowerCase().replace(/[. \']/g, "");
+                                : this.heroes.filter((hero) => {
+                                    let heroName = (hero as Hero).name.toLowerCase().replace(/[. \']/g, "");
                                     return (heroName.includes(this.query.toLowerCase()))
                                 });
-
-            // todo include some lenience for ('. ) in names
-
-            return (filteredHeroes);
+            return (filteredHeroes as Array<Hero>);
+        }
+    },
+    watch: {
+        selectedHero(val: Hero, oldVal : Hero) {
+            console.log(`Selected hero went from ${oldVal.name} to ${val.name}`);
+            this.$emit("heroSelected", val);
         }
     },
     methods: {

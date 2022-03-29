@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { Browser, ElementHandle, Page } from "puppeteer";
 import { Hero } from "../dto/hero.dto";
 import {
+    GameMode,
     HeroScrapingHelper,
     Sorting,
 } from "../scraping/heroScrapingHelper.service";
@@ -36,8 +37,11 @@ export class MatchupWinrateService {
                         enemyTeam
                     );
 
-                if (bestChoices.length < samplesPerHero || worstChoices.length) {
-                    console.log("Error");
+                if (bestChoices.length < samplesPerHero || worstChoices.length < samplesPerHero) {
+                    console.log("Error with choices:");
+                    console.log("Best choices ", bestChoices);
+                    console.log("Worst choices ", worstChoices);
+
                     continue;
                 }
                 // get x best/worst elements for each ally
@@ -66,9 +70,11 @@ export class MatchupWinrateService {
         let bestChoices = [];
         let worstChoices = [];
 
+        let gameMode = GameMode.QUICKMATCH;
+
         const page = await browser.newPage();
         // ! hero name needs to be properly written and capital letters at the start of words
-        const urlString = `https://www.hotslogs.com/Sitewide/TalentDetails?Hero=${heroName}&Tab=winRateVsOtherHeroes`;
+        const urlString = `https://www.hotslogs.com/Sitewide/TalentDetails?GameMode=${gameMode}&Hero=${heroName}&Tab=winRateVsOtherHeroes`;
 
         try {
             await page.goto(urlString);
