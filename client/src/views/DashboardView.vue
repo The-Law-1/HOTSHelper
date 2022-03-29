@@ -33,7 +33,12 @@
                     <LoadingSpinner v-if="loadingHeroSynergies"/>
                 </div>
                 <div>
-                    Hero matchups
+                    <button v-if="enemyTeam.length > 0" @click="getHeroMatchups()">
+                        Get hero matchups
+                    </button>
+                    <MatchupSuggestions v-if="heroMatchups.length > 0" :current-enemies="enemyTeam" :hero-suggestions="heroMatchups"/>
+                    <!-- <SynergySuggestions v-if="heroSynergies.length > 0" :current-allies="alliedTeam" :hero-suggestions="heroSynergies" /> -->
+                    <LoadingSpinner v-if="loadingHeroMatchups"/>
                 </div>
             </div>
             <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setEnemyTeam(team)"/>
@@ -51,6 +56,7 @@ import HeroSuggestions from "../components/HeroSuggestions.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import { Hero } from "../entities/hero";
 import SynergySuggestions from "../components/SynergySuggestions.vue";
+import MatchupSuggestions from "../components/MatchupSuggestions.vue";
 
 export default defineComponent({
 
@@ -60,7 +66,8 @@ export default defineComponent({
     TeamBuilder,
     HeroSuggestions,
     LoadingSpinner,
-    SynergySuggestions
+    SynergySuggestions,
+    MatchupSuggestions
 },
     data: function () {
         return {
@@ -71,10 +78,16 @@ export default defineComponent({
 
             mapWinrates: [] as Array<Hero>,
             heroSynergies: [] as Array<Hero>,
+            heroMatchups: [] as Array<Hero>,
 
             loadingMapWinrates: false as boolean,
             loadingHeroSynergies: false as boolean,
-            loadingHeroMatchups: false as boolean
+            loadingHeroMatchups: false as boolean,
+
+            minSampleSize: 30 as Number,
+            selectionRange: 8 as Number,
+            heroSelectionRange: 2 as Number,
+            playMode: "QuickMatch" as String
         }
     },
     computed: {
@@ -84,6 +97,7 @@ export default defineComponent({
         ...mapActions("heroes", ["getHeroesList"]),
         ...mapActions("map", ["getHeroWinratesForMap"]),
         ...mapActions("synergy", ["getTeamSynergies"]),
+        ...mapActions("matchup", ["getTeamMatchups"]),
 
         setAlliedTeam(newTeam: Array<Hero>) {
             //  deep copy just in case
@@ -94,7 +108,53 @@ export default defineComponent({
         setEnemyTeam(newTeam: Array<Hero>) {
             this.enemyTeam = [...newTeam];
 
-            console.log("Enemy team updated ", this.alliedTeam);
+            console.log("Enemy team updated ", this.enemyTeam);
+        },
+
+        setHeroRolesAndWinrate(heroesToUpdate: Array<Hero>) {
+            // * the hero's role is not accessible on the map winrate thing
+            // * a bit expensive for not much, but it's a small loop
+            if (this.heroes.length > 0) {
+                for (let i = 0; i < heroesToUpdate.length; i++) {
+                    let heroToUpdate = heroesToUpdate[i];
+
+                    let heroIndex = this.heroes.findIndex((hero : Hero) => hero.name === heroToUpdate.name);
+                    if (heroIndex !== -1) {
+
+                        // * set the overall winrate, the specifics will be in the per-case object
+                        heroToUpdate.role = this.heroes[heroIndex].role;
+                        heroToUpdate.winRate = this.heroes[heroIndex].winRate;
+                    }
+                    heroesToUpdate[i] = heroToUpdate;
+                }
+            }
+            return (heroesToUpdate);
+        },
+
+        async getHeroMatchups() {
+            console.log("Getting matchups agains team ", this.enemyTeam);
+
+            this.loadingHeroMatchups = true;
+
+            let alliedTeamNames = this.alliedTeam.map(hero => hero.name);
+            let enemyTeamNames = this.enemyTeam.map(hero => hero.name);
+
+            console.log("Dashboard sending enemy team names", enemyTeamNames);
+            await this.getTeamMatchups({
+                alliedTeamNames,
+                enemyTeamNames,
+                "minSampleSize": this.minSampleSize,
+                "selectionRange": this.selectionRange
+            });
+
+            const that:any = this;
+            let heroMatchups = that.$store.state.matchup.matchupsList;
+
+            heroMatchups = this.setHeroRolesAndWinrate(heroMatchups);
+
+            console.log(heroMatchups);
+            this.loadingHeroMatchups = false;
+            this.heroMatchups = heroMatchups;
         },
         async getHeroSynergies() {
             // * update the store
@@ -109,27 +169,17 @@ export default defineComponent({
             console.log("Enemy names ", enemyTeamNames);
 
             // todo send the query params and all
-            await this.getTeamSynergies(alliedTeamNames, enemyTeamNames);
+            await this.getTeamSynergies({
+                alliedTeamNames,
+                enemyTeamNames,
+                "minSampleSize": this.minSampleSize,
+                "selectionRange": this.selectionRange
+            });
 
             const that:any = this;
             let heroSynergies = that.$store.state.synergy.synergiesList;
 
-            // * the hero's role is not accessible on the map winrate thing
-            // * a bit expensive for not much, but it's a small loop
-            if (this.heroes.length > 0) {
-                for (let i = 0; i < heroSynergies.length; i++) {
-                    let synergyHero = heroSynergies[i];
-
-                    let heroIndex = this.heroes.findIndex((hero : Hero) => hero.name === synergyHero.name);
-                    if (heroIndex !== -1) {
-
-                        // * set the overall winrate, the specifics will be in the per-case object
-                        synergyHero.role = this.heroes[heroIndex].role;
-                        synergyHero.winRate = this.heroes[heroIndex].winRate;
-                    }
-                    heroSynergies[i] = synergyHero;
-                }
-            }
+            heroSynergies = this.setHeroRolesAndWinrate(heroSynergies);
 
             console.log(heroSynergies);
             this.loadingHeroSynergies = false;

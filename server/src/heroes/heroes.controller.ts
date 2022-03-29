@@ -124,8 +124,10 @@ export class HeroesController {
     ): Promise<Array<Hero>> {
         console.log("controller getting sample size ", minSampleSize);
 
+        console.log("Hero teams from contrller ", heroTeams);
+
         let heroChoices = await this.matchupWinrateService.getMatchupWinrates(
-            heroTeams.allies,
+            heroTeams.allies === undefined ? [] : heroTeams.enemies,
             heroTeams.enemies,
             minSampleSize,
             selectionRange
