@@ -16,7 +16,6 @@
                 justify-between
             "
         >
-            <!-- // todo the team builders will probably emit events to build the request body -->
             <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setAlliedTeam(team)"/>
             <div>
                 <div>
@@ -30,7 +29,7 @@
                     <button v-if="alliedTeam.length > 0" @click="getHeroSynergies()">
                         Get hero synergies
                     </button>
-                    <HeroSuggestions v-if="heroSynergies.length > 0" :hero-suggestions="heroSynergies"/>
+                    <SynergySuggestions v-if="heroSynergies.length > 0" :current-allies="alliedTeam" :hero-suggestions="heroSynergies" />
                     <LoadingSpinner v-if="loadingHeroSynergies"/>
                 </div>
                 <div>
@@ -51,6 +50,7 @@ import { mapActions } from 'vuex';
 import HeroSuggestions from "../components/HeroSuggestions.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import { Hero } from "../entities/hero";
+import SynergySuggestions from "../components/SynergySuggestions.vue";
 
 export default defineComponent({
 
@@ -59,7 +59,8 @@ export default defineComponent({
     MapSelection,
     TeamBuilder,
     HeroSuggestions,
-    LoadingSpinner
+    LoadingSpinner,
+    SynergySuggestions
 },
     data: function () {
         return {
