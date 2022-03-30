@@ -18,27 +18,53 @@
         >
             <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setAlliedTeam(team)"/>
             <div>
-                <div>
-                    <button v-if="heroes.length > 0 && selectedMap.length > 0" @click="getHeroesForMap()">
+                <div class="bg-blue-300 rounded-xl">
+                    <button v-if="selectedMap.length > 0" @click="getHeroesForMap()">
                         Get map winrates
                     </button>
                     <HeroSuggestions v-if="mapWinrates.length > 0" :hero-suggestions="mapWinrates"/>
                     <LoadingSpinner v-if="loadingMapWinrates"/>
                 </div>
-                <div>
-                    <button v-if="alliedTeam.length > 0" @click="getHeroSynergies()">
-                        Get hero synergies
-                    </button>
-                    <SynergySuggestions v-if="heroSynergies.length > 0" :current-allies="alliedTeam" :hero-suggestions="heroSynergies" />
-                    <LoadingSpinner v-if="loadingHeroSynergies"/>
+                <div class="bg-green-300 rounded-xl">
+                    <Disclosure v-slot="{ open }">
+                        <DisclosureButton class="flex justify-between text-left text-green-900 py-2 rounded-lg bg-green-200 w-full">
+                            <span>
+                                Show hero synergies
+                            </span>
+                            <ChevronUpIcon
+                                :class="open ? 'transform rotate-180' : ''"
+                                class="w-5 h-5 text-purple-500"
+                            />
+                        </DisclosureButton>
+                        <DisclosurePanel>
+                            <button v-if="alliedTeam.length > 0" @click="getHeroSynergies()">
+                                Load synergies
+                            </button>
+                            <SynergySuggestions v-if="heroSynergies.length > 0" :current-allies="alliedTeam" :hero-suggestions="heroSynergies" />
+                            <LoadingSpinner v-if="loadingHeroSynergies"/>
+                        </DisclosurePanel>
+                    </Disclosure>
                 </div>
-                <div>
-                    <button v-if="enemyTeam.length > 0" @click="getHeroMatchups()">
-                        Get hero matchups
-                    </button>
-                    <MatchupSuggestions v-if="heroMatchups.length > 0" :current-enemies="enemyTeam" :hero-suggestions="heroMatchups"/>
-                    <!-- <SynergySuggestions v-if="heroSynergies.length > 0" :current-allies="alliedTeam" :hero-suggestions="heroSynergies" /> -->
-                    <LoadingSpinner v-if="loadingHeroMatchups"/>
+                <div class="bg-red-300 rounded-xl">
+                    <Disclosure v-slot="{ open }">
+                        <DisclosureButton class="flex justify-between text-left text-red-900 py-2 rounded-lg bg-red-200 w-full">
+
+                            <span>
+                                Show hero matchups
+                            </span>
+                            <ChevronUpIcon
+                                :class="open ? 'transform rotate-180' : ''"
+                                class="w-5 h-5 text-purple-500"
+                            />
+                        </DisclosureButton>
+                        <DisclosurePanel>
+                            <button v-if="enemyTeam.length > 0" @click="getHeroMatchups()">
+                                Get hero matchups
+                            </button>
+                            <MatchupSuggestions v-if="heroMatchups.length > 0" :current-enemies="enemyTeam" :hero-suggestions="heroMatchups"/>
+                            <LoadingSpinner v-if="loadingHeroMatchups"/>
+                        </DisclosurePanel>
+                    </Disclosure>
                 </div>
             </div>
             <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setEnemyTeam(team)"/>
@@ -57,6 +83,8 @@ import LoadingSpinner from "../components/LoadingSpinner.vue";
 import { Hero } from "../entities/hero";
 import SynergySuggestions from "../components/SynergySuggestions.vue";
 import MatchupSuggestions from "../components/MatchupSuggestions.vue";
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
+import { ChevronUpIcon } from '@heroicons/vue/solid'
 
 export default defineComponent({
 
@@ -67,7 +95,11 @@ export default defineComponent({
     HeroSuggestions,
     LoadingSpinner,
     SynergySuggestions,
-    MatchupSuggestions
+    MatchupSuggestions,
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    ChevronUpIcon
 },
     data: function () {
         return {

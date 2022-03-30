@@ -38,15 +38,16 @@
                         focus:outline-none
                         ring-1 ring-black ring-opacity-5
                     "
-                >
+                    >
                     <ComboboxOption
                         v-for="mapName in filteredMaps"
                         as="template"
                         :key="mapName"
                         :value="mapName"
-                        v-slot="{ active }"
+                        v-slot="{ active, selected }"
                     >
                         <li
+                            class="select-none cursor-default"
                             :class="{
                                 'bg-blue-500 text-white': active,
                                 'text-gray-900': !active
