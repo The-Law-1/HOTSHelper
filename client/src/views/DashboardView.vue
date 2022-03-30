@@ -4,9 +4,48 @@
 
 <template>
     <div class="text-center w-[100%] content-center">
-        <!-- // todo this will need to emit an event with the map's name so we can send to server -->
-        <!-- // todo also when you scrape the maps like a big boy pass them as a prop here -->
+        <!-- Config area -->
+        <!-- // todo move this to its own component and move up the info with events -->
+        <div class="text-left absolute bg-purple-300 w-96 rounded-xl p-2">
+            <div>
+                Games sample size:
+                <input class="
+                    focus:border-b-2
+                    focus:border-cyan-300
+                    focus:outline-none
+                    rounded"
+                    type="number"
+                    v-model="minSampleSize"
+                    min="1"
+                    max="1000"/>
+            </div>
+            <div>
+                Map heroes selection:
+                <input class="
+                    focus:border-b-2
+                    focus:border-cyan-300
+                    focus:outline-none
+                    rounded"
+                    type="number"
+                    v-model="selectionRange"
+                    min="1"
+                    max="16"/>
+            </div>
+            <div>
+                Team heroes selection:
+                <input class="
+                    focus:border-b-2
+                    focus:border-cyan-300
+                    focus:outline-none
+                    rounded"
+                    type="number"
+                    v-model="heroSelectionRange"
+                    min="1"
+                    max="16"/>
+            </div>
+        </div>
 
+        <!-- // todo also when you scrape the maps like a big boy pass them as a prop here -->
         <MapSelection @map-updated="(mapName) => selectedMap = mapName"/>
 
         <div
@@ -191,7 +230,7 @@ export default defineComponent({
                 alliedTeamNames,
                 enemyTeamNames,
                 "minSampleSize": this.minSampleSize,
-                "selectionRange": this.selectionRange
+                "selectionRange": this.heroSelectionRange
             });
 
             this.teamMatchupsError = error || "";
@@ -226,7 +265,7 @@ export default defineComponent({
                 alliedTeamNames,
                 enemyTeamNames,
                 "minSampleSize": this.minSampleSize,
-                "selectionRange": this.selectionRange
+                "selectionRange": this.heroSelectionRange,
             });
 
             this.teamSynergiesError = error || "";

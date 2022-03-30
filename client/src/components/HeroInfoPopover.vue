@@ -15,28 +15,28 @@
                     {{ heroData.name }}
                 </li>
                 <li>
-                    Role: {{ heroData.role }}
+                    <u>Role</u>: {{ heroData.role }}
                 </li>
                 <!-- // todo if winrate < 50 red color text -->
                 <li>
-                    Overall winrate: {{ heroData.winRate }}%
+                    <u>Overall winrate</u>: {{ heroData.winRate }}%
                 </li>
                 <li>
-                    Games played: {{ heroData.gamesPlayed }}
+                    <u>Games played</u>: {{ heroData.gamesPlayed }}
                 </li>
                 <li v-if="heroData.winRatePerMap !== {}">
                     <div v-for="(winRate, mapName, index) in heroData.winRatePerMap">
-                        {{ mapName }} win % : {{ winRate }} %
+                        <u>{{ mapName }} win % </u>: {{ winRate }} %
                     </div>
                 </li>
                 <li v-if="heroData.winRatePerDuo !== {}">
                     <div v-for="(winRate, heroName, index) in heroData.winRatePerDuo">
-                        win % with {{ heroName }} : {{ winRate }} %
+                        <u>win % with {{ heroName }} </u>: {{ winRate }} %
                     </div>
                 </li>
                 <li v-if="heroData.winRatePerMatchup !== {}">
                     <div v-for="(winRate, heroName, index) in heroData.winRatePerMatchup">
-                        win % against {{ heroName }} : {{ winRate }} %
+                        <u>win % against {{ heroName }}</u> : {{ winRate }} %
                     </div>
                 </li>
             </ul>

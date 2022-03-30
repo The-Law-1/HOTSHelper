@@ -21,8 +21,7 @@ export class DuoWinrateService {
         let heroChoices = [];
 
         const browser = await this.heroScraping.GetBrowser();
-        let samplesPerHero = 2;
-
+        let samplesPerHero = selectionRange;
 
         for (let i = 0; i < allyTeam.length; i++) {
             const allyName = allyTeam[i];
