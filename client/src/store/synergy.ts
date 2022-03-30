@@ -12,14 +12,20 @@ const synergy = {
         }
     },
     actions: {
-        async getTeamSynergies({commit, state} : any, alliedTeam: Array<string>, enemyTeam: Array<string>, minSampleSize: number = 35, selectionRange: number = 8)
+        async getTeamSynergies({commit, state} : any, args: any)
         {
             const query = {
-                "minSampleSize" : minSampleSize,
-                "selectionRange" : selectionRange
+                "minSampleSize" : args.minSampleSize,
+                "selectionRange" : args.selectionRange
             }
 
-            const res = await getSynergies(alliedTeam, enemyTeam, query);
+            console.log("Synergy store got allies: ", args.alliedTeamNames);
+            console.log("Synergy store got enemies: ", args.enemyTeamNames);
+
+
+            const res = await getSynergies(args.alliedTeamNames,
+                                           args.enemyTeamNames,
+                                           query);
 
             // todo error handling
 

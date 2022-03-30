@@ -66,14 +66,14 @@ export class HeroesController {
     @ApiQuery({
         name: "minSampleSize",
         type: Number,
-        description: "Minimum sample size, optional",
-        required: false,
+        description: "Minimum sample size",
+        required: true,
     })
     @ApiQuery({
         name: "selectionRange",
         type: Number,
-        description: "Hero selection range, optional",
-        required: false,
+        description: "Hero selection range",
+        required: true
     })
     @ApiBody({
         type: TeamsDto,
@@ -92,8 +92,8 @@ export class HeroesController {
         let heroChoices = await this.duoWinrateservice.getSynergyWinrates(
             heroTeams.allies,
             heroTeams.enemies === undefined ? [] : heroTeams.enemies,
-            minSampleSize,
-            selectionRange
+            minSampleSize === NaN ? 30 : minSampleSize,
+            selectionRange === NaN ? 8 : selectionRange
         );
 
         return heroChoices;
@@ -104,14 +104,14 @@ export class HeroesController {
     @ApiQuery({
         name: "minSampleSize",
         type: Number,
-        description: "Minimum sample size, optional",
-        required: false,
+        description: "Minimum sample size",
+        required: true,
     })
     @ApiQuery({
         name: "selectionRange",
         type: Number,
-        description: "Hero selection range, optional",
-        required: false,
+        description: "Hero selection range",
+        required: true,
     })
     @ApiBody({
         type: TeamsDto,
@@ -122,8 +122,12 @@ export class HeroesController {
         @Query("minSampleSize") minSampleSize?: number,
         @Query("selectionRange") selectionRange?: number
     ): Promise<Array<Hero>> {
+        console.log("controller getting sample size ", minSampleSize);
+
+        console.log("Hero teams from contrller ", heroTeams);
+
         let heroChoices = await this.matchupWinrateService.getMatchupWinrates(
-            heroTeams.allies,
+            heroTeams.allies === undefined ? [] : heroTeams.enemies,
             heroTeams.enemies,
             minSampleSize,
             selectionRange

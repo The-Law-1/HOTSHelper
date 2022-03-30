@@ -24,7 +24,7 @@ export class MatchupWinrateService {
         let samplesPerHero = 2;
 
         for await (const enemyName of enemyTeam) {
-            console.log("Fetching choices for hero ");
+            console.log("Fetching choices for hero ", enemyName);
 
             if (enemyName !== null) {
                 const { bestChoices, worstChoices } =
@@ -91,6 +91,8 @@ export class MatchupWinrateService {
         // make sure you get the correct table id and send it to the function
         let tableToScrape = await page.$("#DataTables_Table_0");
 
+        console.log("Found table, min sample: ", minSampleSize);
+
         allHeroStats = await this.heroScraping.scrapeGenericTable(
             tableToScrape,
             3,
@@ -127,12 +129,12 @@ export class MatchupWinrateService {
         // convert base winrate to per-hero
         for (let i = 0; i < bestChoices.length; i++) {
             const hero = bestChoices[i];
-            hero.winRatePerDuo[heroName] = 100.0 - hero.winRate;
+            hero.winRatePerMatchup[heroName] = 100.0 - hero.winRate;
             hero.winRate = 100.0 - hero.winRate;
         }
         for (let i = 0; i < worstChoices.length; i++) {
             const hero = worstChoices[i];
-            hero.winRatePerDuo[heroName] = 100.0 - hero.winRate;
+            hero.winRatePerMatchup[heroName] = 100.0 - hero.winRate;
             hero.winRate = 100.0 - hero.winRate;
         }
 

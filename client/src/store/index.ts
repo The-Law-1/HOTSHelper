@@ -3,6 +3,7 @@ import { createStore } from "vuex";
 import Heroes from './heroes';
 import Map from "./map";
 import Synergy from "./synergy";
+import Matchup from "./matchup";
 
 const store = createStore({
     state: {
@@ -11,7 +12,8 @@ const store = createStore({
     modules: {
         "heroes": Heroes,
         "map": Map,
-        "synergy": Synergy
+        "synergy": Synergy,
+        "matchup": Matchup
     }
 })
 

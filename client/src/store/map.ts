@@ -12,12 +12,12 @@ const map = {
         }
     },
     actions: {
-        async getHeroWinratesForMap({commit, state} : any, mapName : string)
+        async getHeroWinratesForMap({commit, state} : any, args: any)
         {
             const query = {
-                name: mapName,
-                //minSampleSize:,
-                // selectionRange: 
+                name: args.mapName,
+                minSampleSize: args.minSampleSize,
+                selectionRange: args.selectionRange
             };
             const res = await getHeroesForMap(query);
 
