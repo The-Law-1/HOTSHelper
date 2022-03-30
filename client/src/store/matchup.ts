@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { getMatchups } from "../api/team";
 import { Hero } from "../entities/hero";
 
@@ -18,20 +19,29 @@ const matchup = {
                 "selectionRange" : args.selectionRange
             }
 
-            console.log("Matchup store got allies: ", args.alliedTeamNames);
-            console.log("Matchup store got enemies: ", args.enemyTeamNames);
+            try {
+                const res = await getMatchups(
+                    args.alliedTeamNames,
+                    args.enemyTeamNames,
+                    query
+                );
 
-            const res = await getMatchups(
-                args.alliedTeamNames,
-                args.enemyTeamNames,
-                query
-            );
+                if (res.status === 500) {
+                    return ({
+                        error: "Server error"
+                    });
+                }
 
-            // todo error handling
+                commit("getTeamMatchups", res.data);
+            } catch (error : any) {
+                return ({
+                    error: (error as AxiosError).message
+                })
+            }
 
-            console.log("Store retrieved matchups", res.data);
-
-            commit("getTeamMatchups", res.data);
+            return ({
+                success: true
+            })
         }
     }
 }

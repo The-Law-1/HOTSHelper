@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { getSynergies } from "../api/team";
 import { Hero } from "../entities/hero";
 
@@ -19,19 +20,27 @@ const synergy = {
                 "selectionRange" : args.selectionRange
             }
 
-            console.log("Synergy store got allies: ", args.alliedTeamNames);
-            console.log("Synergy store got enemies: ", args.enemyTeamNames);
+            try {
+                const res = await getSynergies(args.alliedTeamNames,
+                                               args.enemyTeamNames,
+                                               query);
 
+                if (res.status === 500) {
+                    return ({
+                        error: "Server error"
+                    });
+                }
+                console.log("Store retrieved data ", res.data);
+                commit("getTeamSynergies", res.data);
+            } catch (error : any) {
+                return ({
+                    error: (error as AxiosError).message
+                });
+            }
 
-            const res = await getSynergies(args.alliedTeamNames,
-                                           args.enemyTeamNames,
-                                           query);
-
-            // todo error handling
-
-            console.log("Store retrieved data ", res.data);
-
-            commit("getTeamSynergies", res.data);
+            return ({
+                success: "true"
+            });
         }
     }
 }

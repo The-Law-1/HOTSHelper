@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { getHeroesForMap } from '../api/heroes';
 import { Hero } from '../entities/hero';
 
@@ -19,11 +20,25 @@ const map = {
                 minSampleSize: args.minSampleSize,
                 selectionRange: args.selectionRange
             };
-            const res = await getHeroesForMap(query);
 
-            // todo error handling etc...
+            try {
+                const res = await getHeroesForMap(query);
 
-            commit("getHeroWinrates", res.data);
+                if (res.status === 500) {
+                    return ({
+                        error: "Server error"
+                    });
+                }
+                commit("getHeroWinrates", res.data);
+            } catch (error : any) {
+                return ({
+                    error: (error as AxiosError).message
+                })
+            }
+
+            return ({
+                success: "true"
+            })
         }
     }
 }

@@ -16,7 +16,7 @@
                 justify-between
             "
         >
-            <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setAlliedTeam(team)"/>
+            <TeamBuilder :hero-list-error="heroListError" :heroes-loaded="!loadingHeroList" :heroes="heroes" @team-updated="(team : Array<any>) => setAlliedTeam(team)"/>
             <div>
                 <div class="bg-blue-300 rounded-xl">
                     <button v-if="selectedMap.length > 0" @click="getHeroesForMap()">
@@ -67,7 +67,7 @@
                     </Disclosure>
                 </div>
             </div>
-            <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setEnemyTeam(team)"/>
+            <TeamBuilder :hero-list-error="(heroListError)" :heroes-loaded="!loadingHeroList" :heroes="heroes" @team-updated="(team : Array<any>) => setEnemyTeam(team)"/>
         </div>
     </div>
 </template>
@@ -112,6 +112,7 @@ export default defineComponent({
             heroSynergies: [] as Array<Hero>,
             heroMatchups: [] as Array<Hero>,
 
+            loadingHeroList: false as boolean,
             loadingMapWinrates: false as boolean,
             loadingHeroSynergies: false as boolean,
             loadingHeroMatchups: false as boolean,
@@ -119,7 +120,9 @@ export default defineComponent({
             minSampleSize: 30 as Number,
             selectionRange: 8 as Number,
             heroSelectionRange: 2 as Number,
-            playMode: "QuickMatch" as String
+            playMode: "QuickMatch" as String,
+
+            heroListError: "" as String
         }
     },
     computed: {
@@ -257,13 +260,22 @@ export default defineComponent({
     },
     created: async function () {
         // * update the store
-        await this.getHeroesList();
+        this.loadingHeroList = true;
+        const {error} = await this.getHeroesList();
+
+        this.heroListError = error || "";
+
+        if (this.heroListError !== "") {
+            this.loadingHeroList = false;
+            return;
+        }
 
         // * get from the store
         const that:any = this;
         this.heroes = that.$store.state.heroes.heroesList;
 
         console.log("Got heroes from state ", this.heroes);
+        this.loadingHeroList = false;
     }
 })
 </script>
