@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Hero } from "../dto/hero.dto";
 import {
+    GameMode,
     HeroScrapingHelper,
     Sorting,
 } from "../scraping/heroScrapingHelper.service";
@@ -26,9 +27,13 @@ export class MapWinrateService {
 
         const page = await browser.newPage();
 
+        // * quickmatch by default but you gotta be able to change this
+        let gameMode = GameMode.QUICKMATCH;
+        console.log("Using game Mode ", gameMode);
+
         // todo use promise.race to either load the page first or find the element and move on
         // * the context gets destroyed when the page loads lol
-        let urlString = `https://www.hotslogs.com/Sitewide/HeroAndMapStatistics?Map=${mapName}`;
+        let urlString = `https://www.hotslogs.com/Sitewide/HeroAndMapStatistics?GameMode=${gameMode}&Map=${mapName}`;
         try {
             await page.goto(urlString, {timeout: 10000, waitUntil: "domcontentloaded"});
         } catch (error) {

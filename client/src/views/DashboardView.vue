@@ -19,6 +19,9 @@
             <TeamBuilder :hero-list-error="heroListError" :heroes-loaded="!loadingHeroList" :heroes="heroes" @team-updated="(team : Array<any>) => setAlliedTeam(team)"/>
             <div>
                 <div class="bg-blue-300 rounded-xl">
+                    <div v-if="mapWinratesError" class="text-red-600">
+                        {{ mapWinratesError }}
+                    </div>
                     <button v-if="selectedMap.length > 0" @click="getHeroesForMap()">
                         Get map winrates
                     </button>
@@ -26,6 +29,9 @@
                     <LoadingSpinner v-if="loadingMapWinrates"/>
                 </div>
                 <div class="bg-green-300 rounded-xl">
+                    <div v-if="teamSynergiesError" class="text-red-600">
+                        {{ teamSynergiesError }}
+                    </div>
                     <Disclosure v-slot="{ open }">
                         <DisclosureButton class="flex justify-between text-left text-green-900 py-2 rounded-lg bg-green-200 w-full">
                             <span>
@@ -46,6 +52,9 @@
                     </Disclosure>
                 </div>
                 <div class="bg-red-300 rounded-xl">
+                    <div v-if="teamMatchupsError" class="text-red-600">
+                        {{ teamMatchupsError }}
+                    </div>
                     <Disclosure v-slot="{ open }">
                         <DisclosureButton class="flex justify-between text-left text-red-900 py-2 rounded-lg bg-red-200 w-full">
 
@@ -122,7 +131,10 @@ export default defineComponent({
             heroSelectionRange: 2 as Number,
             playMode: "QuickMatch" as String,
 
-            heroListError: "" as String
+            heroListError: "" as String,
+            mapWinratesError: "" as String,
+            teamSynergiesError: "" as String,
+            teamMatchupsError: "" as String
         }
     },
     computed: {
@@ -175,12 +187,18 @@ export default defineComponent({
             let enemyTeamNames = this.enemyTeam.map(hero => hero.name);
 
             console.log("Dashboard sending enemy team names", enemyTeamNames);
-            await this.getTeamMatchups({
+            const { error } = await this.getTeamMatchups({
                 alliedTeamNames,
                 enemyTeamNames,
                 "minSampleSize": this.minSampleSize,
                 "selectionRange": this.selectionRange
             });
+
+            this.teamMatchupsError = error || "";
+            if (this.teamMatchupsError.length > 0) {
+                this.loadingHeroMatchups = false;
+                return;
+            }
 
             const that:any = this;
             let heroMatchups = that.$store.state.matchup.matchupsList;
@@ -204,12 +222,19 @@ export default defineComponent({
             console.log("Enemy names ", enemyTeamNames);
 
             // todo send the query params and all
-            await this.getTeamSynergies({
+            const { error } = await this.getTeamSynergies({
                 alliedTeamNames,
                 enemyTeamNames,
                 "minSampleSize": this.minSampleSize,
                 "selectionRange": this.selectionRange
             });
+
+            this.teamSynergiesError = error || "";
+
+            if (this.teamSynergiesError.length > 0) {
+                this.loadingHeroSynergies = false;
+                return;
+            }
 
             const that:any = this;
             let heroSynergies = that.$store.state.synergy.synergiesList;
@@ -227,11 +252,17 @@ export default defineComponent({
             this.loadingMapWinrates = true;
 
             // todo gotta be a way to write this without the this
-            await this.getHeroWinratesForMap({
+            const {error} = await this.getHeroWinratesForMap({
                 mapName: this.selectedMap,
                 minSampleSize: this.minSampleSize,
                 selectionRange: this.selectionRange
             });
+
+            this.mapWinratesError = error || "";
+            if (this.mapWinratesError.length > 0) {
+                this.loadingMapWinrates = false;
+                return;
+            }
 
             const that:any = this;
             let heroWinrates = that.$store.state.map.heroWinrates;
