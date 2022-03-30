@@ -191,7 +191,12 @@ export default defineComponent({
 
             this.loadingMapWinrates = true;
 
-            await this.getHeroWinratesForMap(this.selectedMap);
+            // todo gotta be a way to write this without the this
+            await this.getHeroWinratesForMap({
+                mapName: this.selectedMap,
+                minSampleSize: this.minSampleSize,
+                selectionRange: this.selectionRange
+            });
 
             const that:any = this;
             let heroWinrates = that.$store.state.map.heroWinrates;
