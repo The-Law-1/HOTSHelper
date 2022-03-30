@@ -90,6 +90,8 @@ export class DuoWinrateService {
                 worstChoices: []
             });
         }
+
+        console.log("Got to page, looking for table");
         // make sure you get the correct table id and send it to the function
         let tableToScrape = await page.$("#DataTables_Table_1");
 

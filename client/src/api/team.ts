@@ -12,7 +12,8 @@ export const getSynergies = async (alliedNames:Array<string>, enemyNames: Array<
     enemies: enemyNames
     },
     {
-        params: queryParams
+        params: queryParams,
+        timeout: 10000
     }
 );
 
@@ -21,6 +22,7 @@ export const getMatchups = async (alliedNames:Array<string>, enemyNames: Array<s
     enemies: enemyNames
     },
     {
-        params: queryParams
+        params: queryParams,
+        timeout: 10000
     }
 );
