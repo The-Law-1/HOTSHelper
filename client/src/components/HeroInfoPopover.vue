@@ -9,7 +9,7 @@
 
         <!-- <PopoverOverlay class="bg-purple-600 opacity-50 fixed inset-0"/> -->
 
-        <PopoverPanel class="absolute z-10 w-64 bg-purple-600">
+        <PopoverPanel class="absolute border-black border-2 z-10 w-64 bg-purple-300">
             <ul>
                 <li>
                     {{ heroData.name }}
