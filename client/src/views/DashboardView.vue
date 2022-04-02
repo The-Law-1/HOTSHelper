@@ -4,9 +4,48 @@
 
 <template>
     <div class="text-center w-[100%] content-center">
-        <!-- // todo this will need to emit an event with the map's name so we can send to server -->
-        <!-- // todo also when you scrape the maps like a big boy pass them as a prop here -->
+        <!-- Config area -->
+        <!-- // todo move this to its own component and move up the info with events -->
+        <div class="text-left absolute bg-purple-300 w-96 rounded-xl p-2">
+            <div>
+                Games sample size:
+                <input class="
+                    focus:border-b-2
+                    focus:border-cyan-300
+                    focus:outline-none
+                    rounded"
+                    type="number"
+                    v-model="minSampleSize"
+                    min="1"
+                    max="1000"/>
+            </div>
+            <div>
+                Map heroes selection:
+                <input class="
+                    focus:border-b-2
+                    focus:border-cyan-300
+                    focus:outline-none
+                    rounded"
+                    type="number"
+                    v-model="selectionRange"
+                    min="1"
+                    max="16"/>
+            </div>
+            <div>
+                Team heroes selection:
+                <input class="
+                    focus:border-b-2
+                    focus:border-cyan-300
+                    focus:outline-none
+                    rounded"
+                    type="number"
+                    v-model="heroSelectionRange"
+                    min="1"
+                    max="16"/>
+            </div>
+        </div>
 
+        <!-- // todo also when you scrape the maps like a big boy pass them as a prop here -->
         <MapSelection @map-updated="(mapName) => selectedMap = mapName"/>
 
         <div
@@ -16,32 +55,67 @@
                 justify-between
             "
         >
-            <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setAlliedTeam(team)"/>
+            <TeamBuilder :hero-list-error="heroListError" :heroes-loaded="!loadingHeroList" :heroes="heroes" @team-updated="(team : Array<any>) => setAlliedTeam(team)"/>
             <div>
-                <div>
-                    <button v-if="heroes.length > 0 && selectedMap.length > 0" @click="getHeroesForMap()">
+                <div class="bg-blue-300 rounded-xl">
+                    <div v-if="mapWinratesError" class="text-red-600">
+                        {{ mapWinratesError }}
+                    </div>
+                    <button v-if="selectedMap.length > 0" @click="getHeroesForMap()">
                         Get map winrates
                     </button>
                     <HeroSuggestions v-if="mapWinrates.length > 0" :hero-suggestions="mapWinrates"/>
                     <LoadingSpinner v-if="loadingMapWinrates"/>
                 </div>
-                <div>
-                    <button v-if="alliedTeam.length > 0" @click="getHeroSynergies()">
-                        Get hero synergies
-                    </button>
-                    <SynergySuggestions v-if="heroSynergies.length > 0" :current-allies="alliedTeam" :hero-suggestions="heroSynergies" />
-                    <LoadingSpinner v-if="loadingHeroSynergies"/>
+                <div class="bg-green-300 rounded-xl">
+                    <div v-if="teamSynergiesError" class="text-red-600">
+                        {{ teamSynergiesError }}
+                    </div>
+                    <Disclosure v-slot="{ open }">
+                        <DisclosureButton class="flex justify-between text-left text-green-900 py-2 rounded-lg bg-green-200 w-full">
+                            <span>
+                                Show hero synergies
+                            </span>
+                            <ChevronUpIcon
+                                :class="open ? 'transform rotate-180' : ''"
+                                class="w-5 h-5 text-purple-500"
+                            />
+                        </DisclosureButton>
+                        <DisclosurePanel>
+                            <button v-if="alliedTeam.length > 0" @click="getHeroSynergies()">
+                                Load synergies
+                            </button>
+                            <SynergySuggestions v-if="heroSynergies.length > 0" :current-allies="alliedTeam" :hero-suggestions="heroSynergies" />
+                            <LoadingSpinner v-if="loadingHeroSynergies"/>
+                        </DisclosurePanel>
+                    </Disclosure>
                 </div>
-                <div>
-                    <button v-if="enemyTeam.length > 0" @click="getHeroMatchups()">
-                        Get hero matchups
-                    </button>
-                    <MatchupSuggestions v-if="heroMatchups.length > 0" :current-enemies="enemyTeam" :hero-suggestions="heroMatchups"/>
-                    <!-- <SynergySuggestions v-if="heroSynergies.length > 0" :current-allies="alliedTeam" :hero-suggestions="heroSynergies" /> -->
-                    <LoadingSpinner v-if="loadingHeroMatchups"/>
+                <div class="bg-red-300 rounded-xl">
+                    <div v-if="teamMatchupsError" class="text-red-600">
+                        {{ teamMatchupsError }}
+                    </div>
+                    <Disclosure v-slot="{ open }">
+                        <DisclosureButton class="flex justify-between text-left text-red-900 py-2 rounded-lg bg-red-200 w-full">
+
+                            <span>
+                                Show hero matchups
+                            </span>
+                            <ChevronUpIcon
+                                :class="open ? 'transform rotate-180' : ''"
+                                class="w-5 h-5 text-purple-500"
+                            />
+                        </DisclosureButton>
+                        <DisclosurePanel>
+                            <button v-if="enemyTeam.length > 0" @click="getHeroMatchups()">
+                                Get hero matchups
+                            </button>
+                            <MatchupSuggestions v-if="heroMatchups.length > 0" :current-enemies="enemyTeam" :hero-suggestions="heroMatchups"/>
+                            <LoadingSpinner v-if="loadingHeroMatchups"/>
+                        </DisclosurePanel>
+                    </Disclosure>
                 </div>
             </div>
-            <TeamBuilder :heroes="heroes" @team-updated="(team : Array<any>) => setEnemyTeam(team)"/>
+            <TeamBuilder :hero-list-error="(heroListError)" :heroes-loaded="!loadingHeroList" :heroes="heroes" @team-updated="(team : Array<any>) => setEnemyTeam(team)"/>
         </div>
     </div>
 </template>
@@ -57,6 +131,8 @@ import LoadingSpinner from "../components/LoadingSpinner.vue";
 import { Hero } from "../entities/hero";
 import SynergySuggestions from "../components/SynergySuggestions.vue";
 import MatchupSuggestions from "../components/MatchupSuggestions.vue";
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
+import { ChevronUpIcon } from '@heroicons/vue/solid'
 
 export default defineComponent({
 
@@ -67,7 +143,11 @@ export default defineComponent({
     HeroSuggestions,
     LoadingSpinner,
     SynergySuggestions,
-    MatchupSuggestions
+    MatchupSuggestions,
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    ChevronUpIcon
 },
     data: function () {
         return {
@@ -80,6 +160,7 @@ export default defineComponent({
             heroSynergies: [] as Array<Hero>,
             heroMatchups: [] as Array<Hero>,
 
+            loadingHeroList: false as boolean,
             loadingMapWinrates: false as boolean,
             loadingHeroSynergies: false as boolean,
             loadingHeroMatchups: false as boolean,
@@ -87,7 +168,12 @@ export default defineComponent({
             minSampleSize: 30 as Number,
             selectionRange: 8 as Number,
             heroSelectionRange: 2 as Number,
-            playMode: "QuickMatch" as String
+            playMode: "QuickMatch" as String,
+
+            heroListError: "" as String,
+            mapWinratesError: "" as String,
+            teamSynergiesError: "" as String,
+            teamMatchupsError: "" as String
         }
     },
     computed: {
@@ -140,12 +226,18 @@ export default defineComponent({
             let enemyTeamNames = this.enemyTeam.map(hero => hero.name);
 
             console.log("Dashboard sending enemy team names", enemyTeamNames);
-            await this.getTeamMatchups({
+            const { error } = await this.getTeamMatchups({
                 alliedTeamNames,
                 enemyTeamNames,
                 "minSampleSize": this.minSampleSize,
-                "selectionRange": this.selectionRange
+                "selectionRange": this.heroSelectionRange
             });
+
+            this.teamMatchupsError = error || "";
+            if (this.teamMatchupsError.length > 0) {
+                this.loadingHeroMatchups = false;
+                return;
+            }
 
             const that:any = this;
             let heroMatchups = that.$store.state.matchup.matchupsList;
@@ -169,12 +261,19 @@ export default defineComponent({
             console.log("Enemy names ", enemyTeamNames);
 
             // todo send the query params and all
-            await this.getTeamSynergies({
+            const { error } = await this.getTeamSynergies({
                 alliedTeamNames,
                 enemyTeamNames,
                 "minSampleSize": this.minSampleSize,
-                "selectionRange": this.selectionRange
+                "selectionRange": this.heroSelectionRange,
             });
+
+            this.teamSynergiesError = error || "";
+
+            if (this.teamSynergiesError.length > 0) {
+                this.loadingHeroSynergies = false;
+                return;
+            }
 
             const that:any = this;
             let heroSynergies = that.$store.state.synergy.synergiesList;
@@ -192,11 +291,17 @@ export default defineComponent({
             this.loadingMapWinrates = true;
 
             // todo gotta be a way to write this without the this
-            await this.getHeroWinratesForMap({
+            const {error} = await this.getHeroWinratesForMap({
                 mapName: this.selectedMap,
                 minSampleSize: this.minSampleSize,
                 selectionRange: this.selectionRange
             });
+
+            this.mapWinratesError = error || "";
+            if (this.mapWinratesError.length > 0) {
+                this.loadingMapWinrates = false;
+                return;
+            }
 
             const that:any = this;
             let heroWinrates = that.$store.state.map.heroWinrates;
@@ -225,13 +330,22 @@ export default defineComponent({
     },
     created: async function () {
         // * update the store
-        await this.getHeroesList();
+        this.loadingHeroList = true;
+        const {error} = await this.getHeroesList();
+
+        this.heroListError = error || "";
+
+        if (this.heroListError !== "") {
+            this.loadingHeroList = false;
+            return;
+        }
 
         // * get from the store
         const that:any = this;
         this.heroes = that.$store.state.heroes.heroesList;
 
         console.log("Got heroes from state ", this.heroes);
+        this.loadingHeroList = false;
     }
 })
 </script>

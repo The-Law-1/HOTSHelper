@@ -1,10 +1,14 @@
 <template>
     <div>
 
+        <div v-if="heroListError.length > 0" class="text-red-600">
+            {{ heroListError }}
+        </div>
         <div v-if="heroesLoaded === false">
-            Retrieving heroes
+            Retrieving heroes...
             <LoadingSpinner/>
         </div>
+
         <div v-for="i in 5" :key="('HeroSelector' + i)">
             <HeroSelector
                 :heroes="heroes"
@@ -19,12 +23,21 @@ import { defineComponent } from "vue"
 import { Hero } from "../entities/hero";
 import HeroSelector from "./HeroSelector.vue"
 import LoadingSpinner from "./LoadingSpinner.vue"
+import { PropType } from "vue";
 
 export default defineComponent({
     components: { HeroSelector, LoadingSpinner },
     props: {
         heroes : {
             type: Array,
+            required: true
+        },
+        heroListError: {
+            type: String as PropType<String>,
+            required: true
+        },
+        heroesLoaded: {
+            type: Boolean,
             required: true
         }
     },
@@ -44,9 +57,6 @@ export default defineComponent({
         }
     },
     computed: {
-        heroesLoaded() : boolean {
-            return (this.heroes.length > 0);
-        },
     }
 })
 </script>

@@ -21,8 +21,7 @@ export class DuoWinrateService {
         let heroChoices = [];
 
         const browser = await this.heroScraping.GetBrowser();
-        let samplesPerHero = 2;
-
+        let samplesPerHero = selectionRange;
 
         for (let i = 0; i < allyTeam.length; i++) {
             const allyName = allyTeam[i];
@@ -90,6 +89,8 @@ export class DuoWinrateService {
                 worstChoices: []
             });
         }
+
+        console.log("Got to page, looking for table");
         // make sure you get the correct table id and send it to the function
         let tableToScrape = await page.$("#DataTables_Table_1");
 

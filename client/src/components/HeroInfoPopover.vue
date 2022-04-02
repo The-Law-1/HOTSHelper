@@ -9,34 +9,34 @@
 
         <!-- <PopoverOverlay class="bg-purple-600 opacity-50 fixed inset-0"/> -->
 
-        <PopoverPanel class="absolute z-10 w-64 bg-purple-600">
+        <PopoverPanel class="absolute border-black border-2 z-10 w-72 bg-purple-300">
             <ul>
                 <li>
                     {{ heroData.name }}
                 </li>
                 <li>
-                    Role: {{ heroData.role }}
+                    <u>Role</u>: {{ heroData.role }}
                 </li>
                 <!-- // todo if winrate < 50 red color text -->
                 <li>
-                    Overall winrate: {{ heroData.winRate }}%
+                    <u>Overall winrate</u>: {{ heroData.winRate }}%
                 </li>
                 <li>
-                    Games played: {{ heroData.gamesPlayed }}
+                    <u>Games played</u>: {{ heroData.gamesPlayed }}
                 </li>
                 <li v-if="heroData.winRatePerMap !== {}">
                     <div v-for="(winRate, mapName, index) in heroData.winRatePerMap">
-                        {{ mapName }} win % : {{ winRate }} %
+                        <u>{{ mapName }} win % </u>: {{ winRate }} %
                     </div>
                 </li>
                 <li v-if="heroData.winRatePerDuo !== {}">
                     <div v-for="(winRate, heroName, index) in heroData.winRatePerDuo">
-                        win % with {{ heroName }} : {{ winRate }} %
+                        <u>win % with {{ heroName }} </u>: {{ winRate }} %
                     </div>
                 </li>
                 <li v-if="heroData.winRatePerMatchup !== {}">
                     <div v-for="(winRate, heroName, index) in heroData.winRatePerMatchup">
-                        win % against {{ heroName }} : {{ winRate }} %
+                        <u>win % against {{ heroName }}</u> : {{ winRate }} %
                     </div>
                 </li>
             </ul>

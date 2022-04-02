@@ -21,7 +21,7 @@ export class MatchupWinrateService {
         let heroChoices = [];
 
         const browser = await this.heroScraping.GetBrowser();
-        let samplesPerHero = 2;
+        let samplesPerHero = selectionRange;
 
         for await (const enemyName of enemyTeam) {
             console.log("Fetching choices for hero ", enemyName);
