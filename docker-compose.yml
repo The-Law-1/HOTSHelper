@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - SERVER_PORT=${SERVER_PORT}
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+
+  # client:
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - SERVER_PORT=${SERVER_PORT}
+  #   ports:
+  #     - "${CLIENT_PORT}:3000"
+  #   depends_on:
+  #     - "server"
