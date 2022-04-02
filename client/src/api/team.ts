@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-let serverHost = import.meta.env.VITE_SERVER_HOST || "http://localhost:";
+let serverHost = import.meta.env.VITE_SERVER_HOST || "http://localhost";
 let serverPort = import.meta.env.VITE_SERVER_PORT || 3001;
 
 const teamsAPI = axios.create({
-    baseURL: `${serverHost}${serverPort}/heroes/team`
+    baseURL: `${serverHost}:${serverPort}/heroes/team`
 });
 
 export const getSynergies = async (alliedNames:Array<string>, enemyNames: Array<string>, queryParams:any) => teamsAPI.post("/synergies", {

@@ -1,0 +1,21 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    env:
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      CLIENT_PORT: ${{ secrets.CLIENT_PORT }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: docker-compose build
