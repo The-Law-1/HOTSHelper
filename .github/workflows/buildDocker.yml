@@ -12,6 +12,7 @@ jobs:
   build:
     env:
       SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      CLIENT_PORT: ${{ secrets.CLIENT_PORT }}
 
     runs-on: ubuntu-latest
 

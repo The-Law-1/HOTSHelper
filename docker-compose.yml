@@ -7,15 +7,17 @@ services:
     environment:
       - SERVER_PORT=${SERVER_PORT}
     ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
+      - ${SERVER_PORT}:3001
 
-  # client:
-  #   build:
-  #     context: ./client
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - SERVER_PORT=${SERVER_PORT}
-  #   ports:
-  #     - "${CLIENT_PORT}:3000"
-  #   depends_on:
-  #     - "server"
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    environment:
+      - VITE_SERVER_PORT=${SERVER_PORT}
+      - VITE_SERVER_HOST=${SERVER_HOST}
+      - VITE_CLIENT_PORT=${CLIENT_PORT}
+    ports:
+      - "${CLIENT_PORT}:3000"
+    depends_on:
+      - "server"
