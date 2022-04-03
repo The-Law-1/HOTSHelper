@@ -1,0 +1,1 @@
+the whole deployment thing isn't happening, so just explain how to run it urself
