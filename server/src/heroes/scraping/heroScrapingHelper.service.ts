@@ -36,6 +36,7 @@ export class HeroScrapingHelper implements OnApplicationShutdown {
         browser = await puppeteer.launch({
             headless: headless,
             userDataDir: "puppeteerCache",
+            args: ["--no-sandbox"],
         });
 
         return browser;
