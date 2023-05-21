@@ -12,6 +12,7 @@ You just need to provide the following environment variables in a .env file at t
 ```
 SERVER_PORT= ... # The port the server will run on (mapped in the container)
 CLIENT_PORT= ... # The port the client will run on (mapped in the container)
+SERVER_HOST= ... # The host the server will run on (mapped in the container), likely localhost in most cases
 ```
 
 Then, you can run the following command to start the app:
